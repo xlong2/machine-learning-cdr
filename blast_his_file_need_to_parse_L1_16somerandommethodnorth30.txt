@@ -1,3 +1,0 @@
-L1-16-none.1l7tL.pdb	L1-16-none.1ucbL.pdb	71.429	7	2	0	1	7	1	7	0.016	13.8
-L1-16-none.1l7tL.pdb	L1-16-none.5bmfL.pdb	71.429	7	2	0	1	7	1	7	0.099	12.1
-L1-16-none.1l7tL.pdb	L1-16-none.5dlmL.pdb	71.429	7	2	0	1	7	1	7	0.10	12.1

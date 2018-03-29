@@ -1,2 +1,0 @@
-H1-15-none.5sx5H.pdb	H1-15-none.3tnmH.pdb	88.889	9	1	0	1	9	1	9	0.014	13.4
-H1-15-none.5sx5H.pdb	H1-15-none.3tjeH.pdb	66.667	9	3	0	1	9	1	9	0.016	13.4

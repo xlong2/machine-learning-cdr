@@ -1,2 +1,0 @@
-> H2-10-6.5tf1H.pdb
-WINPNGGDT

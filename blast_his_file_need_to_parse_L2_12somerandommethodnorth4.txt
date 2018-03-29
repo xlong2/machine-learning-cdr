@@ -1,2 +1,0 @@
-L2-12-none.4ktdL.pdb	L2-12-none.4kteL.pdb	75.000	12	3	0	1	12	1	12	1.05e-04	19.7
-L2-12-none.4ktdL.pdb	L2-12-none.3bj91.pdb	54.545	11	5	0	2	12	2	12	0.035	13.4

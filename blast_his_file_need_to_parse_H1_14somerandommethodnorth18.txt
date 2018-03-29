@@ -1,3 +1,0 @@
-H1-14-none.4ocxH.pdb	H1-14-none.5e94B.pdb	88.889	9	1	0	1	9	1	9	4.59e-04	17.6
-H1-14-none.4ocxH.pdb	H1-14-none.3qg6H.pdb	88.889	9	1	0	1	9	1	9	4.59e-04	17.6
-H1-14-none.4ocxH.pdb	H1-14-none.1ncwH.pdb	88.889	9	1	0	1	9	1	9	4.59e-04	17.6
