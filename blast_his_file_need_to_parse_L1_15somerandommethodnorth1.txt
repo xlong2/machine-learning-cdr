@@ -1,0 +1,4 @@
+L1-15-none.3i2cL.pdb	L1-15-none.3phqA.pdb	100.000	9	0	0	1	9	1	9	0.001	16.3
+L1-15-none.3i2cL.pdb	L1-15-none.1i7zA.pdb	88.889	9	1	0	1	9	1	9	0.002	15.5
+L1-15-none.3i2cL.pdb	L1-15-none.1nsnL.pdb	77.778	9	2	0	1	9	1	9	0.008	13.8
+L1-15-none.3i2cL.pdb	L1-15-none.4lvhF.pdb	75.000	8	2	0	1	8	1	8	0.028	12.5

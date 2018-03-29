@@ -1,0 +1,22 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1521250513695.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "0",
+    "id" : "434077D7",
+    "lastKnownWriteTime" : 1516348342,
+    "last_content_update" : 1516348342,
+    "path" : "C:/Users/xlong/Google Drive/2018_spring/lab_work_data/machine_learning_cdr/proline_classifier/gbm_train_test_splitted_grid.R",
+    "project_path" : "proline_classifier/gbm_train_test_splitted_grid.R",
+    "properties" : {
+        "cursorPosition" : "10,42",
+        "scrollLine" : "0"
+    },
+    "relative_order" : 9,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}

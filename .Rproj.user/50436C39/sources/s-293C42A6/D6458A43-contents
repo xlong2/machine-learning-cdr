@@ -1,0 +1,20 @@
+all_corrected_ones=lapply(enforcing_correct_rmsd_list,function(x){this=do.call(rbind,x)
+  
+  })
+all_corrected_ones=all_corrected_ones[!unlist(lapply(all_corrected_ones,is.null))]
+all_corrected_ones_annot=lapply(names(all_corrected_ones),function(x){
+  g=all_corrected_ones[[x]]
+g=g[!grepl("none",g$X1),];  a=dim(g)[1]
+  g$loop_type=rep(x,a); return(g) })
+all_corrected_ones_annot_combined=do.call(rbind, all_corrected_ones_annot)
+annot_combined <- melt(all_corrected_ones_annot_combined, id.vars=colnames(all_corrected_ones_annot_combined)[!colnames(all_corrected_ones_annot_combined) %in%c("rmsd","correct_cluster_rmsd")])
+annot_combined$value=as.numeric(annot_combined$value)
+annot_combined_sub=annot_combined[c(1:20,120:150,1000:1200),]
+annot_combined_sub$value=as.numeric(annot_combined_sub$value)
+ggplot(annot_combined,
+       aes(
+         x = loop_type,
+         y = value,fill=variable
+       ))+ geom_boxplot() + facet_grid(.~loop_type,scales="free")+ ggtitle("Blind-blast best hit template class membership accuracy") +
+  theme(plot.title = element_text(hjust = 0.5))
+options(digits = 2)

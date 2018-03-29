@@ -1,0 +1,14 @@
+L3-8-none.3qpxL.pdb	L3-8-none.4j8rA.pdb	70.000	10	3	0	1	10	1	10	0.037	14.6
+L3-8-none.3qpxL.pdb	L3-8-none.4kuzL.pdb	70.000	10	3	0	1	10	1	10	0.042	14.2
+L3-8-none.3qpxL.pdb	L3-8-none.5bzdA.pdb	60.000	10	4	0	1	10	1	10	0.12	13.4
+L3-8-none.3qpxL.pdb	L3-8-none.2xtjB.pdb	50.000	10	5	0	1	10	1	10	0.31	12.1
+L3-8-none.3qpxL.pdb	L3-8-none.4kq3L.pdb	60.000	10	4	0	1	10	1	10	0.43	12.1
+L3-8-none.3qpxL.pdb	L3-8-none.1fn4C.pdb	66.667	9	3	0	2	10	2	10	0.45	12.1
+L3-8-none.3qpxL.pdb	L3-8-none.3j70B.pdb	70.000	10	3	0	1	10	1	10	0.52	11.7
+L3-8-none.3qpxL.pdb	L3-8-none.2fatL.pdb	60.000	10	4	0	1	10	1	10	0.57	11.7
+L3-8-none.3qpxL.pdb	L3-8-none.1e6oL.pdb	60.000	10	4	0	1	10	1	10	0.57	11.7
+L3-8-none.3qpxL.pdb	L3-8-none.5ggtL.pdb	50.000	10	5	0	1	10	1	10	0.73	11.2
+L3-8-none.3qpxL.pdb	L3-8-none.4ps4L.pdb	50.000	10	5	0	1	10	1	10	2.4	10.0
+L3-8-none.3qpxL.pdb	L3-8-none.4liqL.pdb	60.000	10	4	0	1	10	1	10	3.8	 9.5
+L3-8-none.3qpxL.pdb	L3-8-none.3hi6L.pdb	50.000	10	5	0	1	10	1	10	6.5	 9.1
+L3-8-none.3qpxL.pdb	L3-8-none.1dqlL.pdb	66.667	9	3	0	2	10	2	10	6.7	 9.1

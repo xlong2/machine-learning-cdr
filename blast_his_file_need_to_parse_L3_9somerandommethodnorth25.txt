@@ -1,0 +1,15 @@
+L3-9-cis7-1.4yr6B.pdb	L3-9-cis7-1.1wejL.pdb	88.889	9	1	0	1	9	1	9	0.002	20.2
+L3-9-cis7-1.4yr6B.pdb	L3-9-cis7-1.1jglL.pdb	77.778	9	2	0	1	9	1	9	0.006	18.9
+L3-9-cis7-1.4yr6B.pdb	L3-9-cis7-1.3qpqE.pdb	77.778	9	2	0	1	9	1	9	0.013	18.0
+L3-9-cis7-1.4yr6B.pdb	L3-9-cis7-1.5a16F.pdb	66.667	9	3	0	1	9	1	9	0.021	17.6
+L3-9-cis7-1.4yr6B.pdb	L3-9-cis7-1.3wxwL.pdb	66.667	9	3	0	1	9	1	9	0.040	16.8
+L3-9-cis7-1.4yr6B.pdb	L3-9-cis7-1.2ymxL.pdb	66.667	9	3	0	1	9	1	9	0.042	16.8
+L3-9-cis7-1.4yr6B.pdb	L3-9-cis7-1.1g7hA.pdb	66.667	9	3	0	1	9	1	9	0.11	15.5
+L3-9-cis7-1.4yr6B.pdb	L3-9-cis7-1.2xqyK.pdb	55.556	9	4	0	1	9	1	9	0.17	15.1
+L3-9-cis7-1.4yr6B.pdb	L3-9-cis7-1.4x80L.pdb	66.667	9	3	0	1	9	1	9	0.23	14.6
+L3-9-cis7-1.4yr6B.pdb	L3-9-cis7-1.1p7kL.pdb	55.556	9	4	0	1	9	1	9	0.32	14.6
+L3-9-cis7-1.4yr6B.pdb	L3-9-cis7-1.1f6lL.pdb	55.556	9	4	0	1	9	1	9	0.36	14.2
+L3-9-cis7-1.4yr6B.pdb	L3-9-cis7-1.3mnzA.pdb	66.667	9	2	1	1	9	2	9	0.56	13.8
+L3-9-cis7-1.4yr6B.pdb	L3-9-cis7-1.3iu4L.pdb	55.556	9	4	0	1	9	1	9	0.56	13.8
+L3-9-cis7-1.4yr6B.pdb	L3-9-cis7-1.3j3zL.pdb	55.556	9	4	0	1	9	1	9	0.76	13.8
+L3-9-cis7-1.4yr6B.pdb	L3-9-cis7-1.3cx5K.pdb	55.556	9	4	0	1	9	1	9	10	10.8

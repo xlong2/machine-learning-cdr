@@ -1,0 +1,118 @@
+# getting result of blindBLAST in 3 repeat 10 fold cv
+# getting rmsds of the wrong cases and rmsds when we enforce correct cluster template selection.
+
+
+
+each_method = "blindblast_just_get_alignment"
+  cluster_dis = "north"
+subsitution_matrix_name = "wahtw"  #"/Volumes/lab/macbook/lab_work_data/vall_rmsd/loop_sub_matrix.csv"
+subsitution_matrix = "PAM30"
+result_dir = "./proline_classifier/Data_processed/"
+
+
+#do LOOCV
+#loop through all sequences
+#construct a ml model using all sequences except for the single query seq
+# predict the class of the query seq
+# construct a blast database using the predicted cluster but without the seq
+# run blast search and at the same time calculate the prediction rmsd
+# store all such prediction and rmsd into two list
+# retrieve them after finish looping
+# store the rds into a directory
+
+# use gbm to do LOOCV by iterating all seqs
+overall_accuracy = list()
+ten_foldcv_blindblastlist = list()
+for (loop_type in names(data_by_loop_type_list_unduplicated)[2:length( names(data_by_loop_type_list_unduplicated))]) {
+  returned_list=getting_similar_sequences_similarity_matrix_rmsd_matrix(loop_type)
+  if(!is.logical(returned_list)){
+  g(sequences,similarity_matrix,rmsd_matrix)  %=%  returned_list
+  }else{print("jump to next");next;}
+  
+  each_loop_length_data_feature_string = data_by_loop_type_list_unduplicated[[loop_type]][[2]]
+  features=data_by_loop_type_list_unduplicated[[loop_type]][[4]]
+  sequences$cluster_type = as.character(sequences$cluster_type)
+  all_cases =  sequences[, c(features, "cluster_type", "identifier", "id")]
+  #make folds and separates folds in and folds out
+  r <- 3 # number of repeats
+  k <- 10 # number of folds
+  g(folds.list,folds.list.out)  %=%generate_folds_foldsout(sequences,3,10)
+  all_result_list = mclapply(1:length(folds.list), get_accuracy_per_fold, mc.cores =
+                               1)
+  acc_result=calculate_accuracy_mean_std(all_result_list)
+  overall_accuracy[[loop_type]] = c(acc_result[[1]], acc_result[[2]])
+  ten_foldcv_blindblastlist[[loop_type]] = all_result_list
+
+}# end of iterating all loop types
+
+#for each loop find out which ones are not the real cluster and get the query and predicted pdbs
+
+
+
+
+
+
+
+save_file2 = paste(c(result_dir, "ten_foldcv_blindblastlist", ".rds"), collapse = "")
+saveRDS(ten_foldcv_blindblastlist, file = save_file2)
+blind_blast_cv_result_summary = as.data.frame(do.call(rbind, overall_accuracy))
+
+rownames(blind_blast_cv_result_summary) = names(overall_accuracy)
+colnames(blind_blast_cv_result_summary) = c("mean", "sd")
+blind_blast_cv_result_summary$loop_type = rownames(blind_blast_cv_result_summary)
+save_file = paste(c(result_dir, "blind_blast_cv_result_summary", ".rds"),
+                  collapse = "")
+saveRDS(blind_blast_cv_result_summary, file = save_file)
+
+
+
+
+# get the blindblast 10 fold cv accuracies
+blind_blast_cv_result_summary$loop=split_vector_and_replace(blind_blast_cv_result_summary$loop_type,"_",1,1,"-")
+blind_blast_cv_result_summary$length=split_vector_and_replace(blind_blast_cv_result_summary$loop_type,"_",2,2,"-")
+blind_blast_cv_result_summary_reordered=reorder_factor(blind_blast_cv_result_summary,"loop","length")
+
+p1=ggplot(blind_blast_cv_result_summary_reordered,
+       aes(
+         x = length,
+         y = mean,
+         ymin = mean - sd / 2,
+         ymax = mean + sd / 2
+       )) + geom_errorbar(stat = "identity") + facet_grid(~loop,scales="free",space="free")+geom_point() + theme_classic()+
+  theme(plot.title = element_text(hjust = 0.5))
+options(digits = 2)
+
+grids=list()
+grids[[1]]=the_plot
+grids[[2]]=p1
+p=grid.arrange(arrangeGrob(grids[[1]],grids[[2]], ncol=1, nrow=2, heights=c(2,1) ,bottom=textGrob("wrong prediction type", gp=gpar(fontsize=14))  ))
+
+plot_dir="./proline_classifier/Plots/"
+save_figure_specific_size(p,paste(c(plot_dir,"blindBLAST_corrected_with_accuracy_rmsdplot.pdf"),collapse=""),7,7)
+
+
+# selecting out the incorrect ones and enforcing the search within just the right cluster
+# get what happens if I enforce the correct cluster choice.
+enforcing_correct_rmsd_list=list()
+for (loop_type in names(ten_foldcv_blindblastlist)[2:length(names(ten_foldcv_blindblastlist))]) {
+  
+  returned_list=getting_similar_sequences_similarity_matrix_rmsd_matrix(loop_type)
+  if(!is.logical(returned_list)){
+    g(sequences,similarity_matrix,rmsd_matrix)  %=%  returned_list
+  }else{next}
+  the_result_list=ten_foldcv_blindblastlist[[loop_type]]
+  
+
+this_loop_enforcing_correct_rmsds=lapply(1:length(the_result_list),get_accuracy_per_fold_enforcing_corrent_fold)
+enforcing_correct_rmsd_list[[loop_type]]=this_loop_enforcing_correct_rmsds
+if(is.null(enforcing_correct_rmsd_list[[loop_type]])){
+  enforcing_correct_rmsd_list[[loop_type]]<-NULL
+}
+}
+
+
+save_file3 = paste(c(result_dir, "enforcing_correct_rmsd_list", ".rds"),
+                  collapse = "")
+saveRDS(enforcing_correct_rmsd_list, file = save_file3)
+
+

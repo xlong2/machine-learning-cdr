@@ -1,0 +1,22 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1520365075036.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "0",
+    "id" : "93EF01A8",
+    "lastKnownWriteTime" : 1517215552,
+    "last_content_update" : 1517215552,
+    "path" : "E:/googledrive/2018_spring/lab_work_data/machine_learning_cdr/proline_classifier/blind_blast_comparison.R",
+    "project_path" : null,
+    "properties" : {
+        "cursorPosition" : "517,0",
+        "scrollLine" : "0"
+    },
+    "relative_order" : 7,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}

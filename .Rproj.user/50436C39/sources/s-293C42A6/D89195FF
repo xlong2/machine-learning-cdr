@@ -1,0 +1,22 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1522344092296.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "1671252631",
+    "id" : "D89195FF",
+    "lastKnownWriteTime" : 1522344106,
+    "last_content_update" : 1522344106765,
+    "path" : "~/Google Drive/2018_spring/lab_work_data/machine_learning_cdr/proline_classifier/3.1.3.worse_no_improvement_improved_division.R",
+    "project_path" : "proline_classifier/3.1.3.worse_no_improvement_improved_division.R",
+    "properties" : {
+        "cursorPosition" : "95,0",
+        "scrollLine" : "71"
+    },
+    "relative_order" : 14,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}

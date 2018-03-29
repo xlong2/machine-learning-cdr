@@ -1,0 +1,22 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1522344083020.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "1705996348",
+    "id" : "F55399AC",
+    "lastKnownWriteTime" : 1522089651,
+    "last_content_update" : 1522089651,
+    "path" : "~/Google Drive/2018_spring/lab_work_data/machine_learning_cdr/proline_classifier/3.3.1.compare_gbm_blindBLAST_errorcount.R",
+    "project_path" : "proline_classifier/3.3.1.compare_gbm_blindBLAST_errorcount.R",
+    "properties" : {
+        "cursorPosition" : "0,0",
+        "scrollLine" : "0"
+    },
+    "relative_order" : 11,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}

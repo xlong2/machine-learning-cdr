@@ -1,0 +1,5 @@
+H1-14-none.5e94B.pdb	H1-14-none.3qg6H.pdb	100.000	9	0	0	1	9	1	9	1.90e-04	18.9
+H1-14-none.5e94B.pdb	H1-14-none.1ncwH.pdb	100.000	9	0	0	1	9	1	9	1.90e-04	18.9
+H1-14-none.5e94B.pdb	H1-14-none.4ocxH.pdb	88.889	9	1	0	1	9	1	9	4.59e-04	17.6
+H1-14-none.5e94B.pdb	H1-14-none.2xzcH.pdb	66.667	9	3	0	1	9	1	9	0.004	15.5
+H1-14-none.5e94B.pdb	H1-14-none.4r7dI.pdb	66.667	9	3	0	1	9	1	9	0.004	15.1

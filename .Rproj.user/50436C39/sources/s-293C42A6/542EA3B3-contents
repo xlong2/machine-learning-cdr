@@ -1,0 +1,91 @@
+
+
+save_file = paste(c(result_dir,"blind_blast_cv_result_summary",".rds"),collapse="")
+save_file1="./proline_classifier/Data_processed/overall_accuracy.rds"
+save_file2 = paste(c(result_dir,"10foldcvblast",".rds"),collapse="")
+save_file3 = paste(c(result_dir,"all_pred_tables_realcluster_list",".rds"),collapse="")
+summary_list_frame_rbind_file= paste(c(result_dir,"summary_list_frame_rbind_file",".rds"),collapse="")
+
+load_old=FALSE
+rerun=TRUE
+if(load_old){
+  overall_accuracy=readRDS(save_file1)
+  all_pred_tables_list=readRDS(save_file2)
+  result_summary=readRDS( save_file) 
+  all_pred_tables_realcluster_list=readRDS(save_file3)
+}else{
+  # use gbm to do LOOCV by iterating all seqs
+  overall_accuracy = list()
+  all_pred_tables_list=list()
+  all_pred_tables_realcluster_list =list()
+}
+
+
+
+
+
+# generate blindBLAST 10 cv
+
+for(loop_type in names(data_by_loop_type_list_unduplicated)){
+  
+  tryCatch({
+    sequences = data_by_loop_type_list_unduplicated[[loop_type]][[1]]#load the sequences from a loop length
+    features = data_by_loop_type_list_unduplicated[[loop_type]][[4]]
+    each_loop_length_data_feature_string = data_by_loop_type_list_unduplicated[[loop_type]][[2]]
+    sequences$cluster_type = as.character(sequences$cluster_type)
+    all_cases =  sequences[,c(features,"cluster_type","identifier","id")]
+    #make folds and separates folds in and folds out 
+    r <-3 # number of repeats
+    k <- 10 # number of folds
+    training_cases=sequences
+    training_cases=sequences[,c(features,"cluster_type","id","identifier")]
+    returned_results=make_3_10_cross_val(training_cases,r,k)
+    folds_spec=returned_results[[1]]
+    sequences=returned_results[[2]]   # the training cases would have its mo
+    folds.list.out=folds_spec[[1]]
+    folds.list=folds_spec[[2]]
+    counted_folds=c(1:length(folds.list))[unlist(lapply(folds.list.out,length))!=0]
+    sequences[folds.list[[1]],"id"] %in%sequences[folds.list.out[[1]],"id"]
+    rmsd_list= list() # the list to store the hit for each fold
+    rmsd_search_correct_cluster=list()
+    #conf_summary_table=list()
+    #for(each_fold in 1:length(folds.list)){ # iterate through all the sequences in this cluster to 
+    
+    
+    
+    conf_summary_table=lapply(all_result_list,function(x){x[[1]]})
+    if(!is.na(all_pred_tables_list[[loop_type]])){
+      all_pred_tables=all_pred_tables_list[[loop_type]]
+    }else{
+      all_result_list=mclapply(as.list(counted_folds),get_accuracy_per_fold,mc.cores=6)
+      
+      all_pred_tables=lapply(all_result_list,function(x){x[[2]]})}
+    all_pred_hit_realcluster_tables=lapply(all_result_list,function(x){x[[3]]})
+    
+    # get mean and get SD for the accuracy accross all folds 
+    the_mean = mean(unlist(conf_summary_table))
+    the_sd = sd(unlist(conf_summary_table))
+    overall_accuracy[[loop_type]]=c(the_mean,the_sd)
+    all_pred_tables_list[[loop_type]]=all_pred_tables
+    all_pred_tables_realcluster_list[[loop_type]]=all_pred_hit_realcluster_tables
+  },error=function(e){})
+}# end of iterating all loop types 
+
+
+summary_list=lapply(all_pred_tables_list,function(x){lapply(x,function(y){right=y[y[,4]==sapply(strsplit(y[,5],"\\."),"[[",1),]; dim(right)[1]/dim(y)[1] })})
+summary_list_frame=lapply(names(summary_list),function(name){data.frame(accu=t(as.data.frame(summary_list[[name]])),loop=rep(name,length(summary_list[[name]])))})
+summary_list_frame_rbind=do.call(rbind,summary_list_frame)
+
+#for each loop find out which ones are not the real cluster and get the query and predicted pdbs 
+result_summary = as.data.frame(do.call(rbind, overall_accuracy));  
+rownames(result_summary)=names(overall_accuracy); 
+colnames(result_summary)=c("mean","sd"); 
+print(result_summary) ;print(save_file); 
+result_summary$loop_type=rownames(result_summary);
+saveRDS(result_summary,file= save_file) 
+
+saveRDS(all_pred_tables_list,file= save_file2) 
+saveRDS(all_pred_tables_realcluster_list,file=save_file3)
+saveRDS(overall_accuracy,file=save_file1)
+saveRDS(summary_list_frame_rbind,file=summary_list_frame_rbind_file)
+

@@ -1,0 +1,105 @@
+
+# comparing the significance of wrong classification with accountance of the case number
+most_freq=lapply(all_pred,function(x){
+  print(x)
+  x[,5]=sapply(strsplit(x[,5],"\\."),"[[",1);x=x[x[,4]!=x[,5],]; 
+  fr=as.data.frame(table(x[,4],x[,5]))
+  if(dim(fr)[1]!=0){
+    fr=fr[fr$Freq!=0,]
+    fr$ratio=fr$Freq/sum(fr$Freq)
+    fr=fr[order(unlist(fr[,"Freq"]),decreasing = TRUE),]}else{fr=NULL}
+  return(fr)
+})
+
+
+comparison_summary=list()
+for(loop_type in names(most_freq)){
+  most_freq[[loop_type]]$type=paste(most_freq[[loop_type]][,1],most_freq[[loop_type]][,2],sep="")
+  simulated_prediction[[loop_type]][,1]=as.character(simulated_prediction[[loop_type]][,1]); 
+  simulated_prediction[[loop_type]][,2]=as.character(simulated_prediction[[loop_type]][,2])
+  
+  simulated_prediction[[loop_type]]$type=paste(simulated_prediction[[loop_type]][,1],simulated_prediction[[loop_type]][,2],sep="")
+  this_fr=most_freq[[loop_type]]    
+  Fvalue=apply(this_fr,1,function(x){
+    print(x[["ratio"]])
+    print(simulated_prediction[[loop_type]][,"type"]==x[["type"]])
+    tt=simulated_prediction[[loop_type]][,"type"]==x[["type"]]
+    as.numeric(as.character(x[["ratio"]]))/as.numeric(as.character(simulated_prediction[[loop_type]][tt,"ratio"]))
+  })   
+  
+  simu_ratio=apply(this_fr,1,function(x){
+    print(x[["ratio"]])
+    print(simulated_prediction[[loop_type]][,"type"]==x[["type"]])
+    tt=simulated_prediction[[loop_type]][,"type"]==x[["type"]]
+    as.numeric(as.character(simulated_prediction[[loop_type]][tt,"ratio"]))
+  })
+  
+  simu_freq=apply(this_fr,1,function(x){
+    print(x[["ratio"]])
+    print(simulated_prediction[[loop_type]][,"type"]==x[["type"]])
+    tt=simulated_prediction[[loop_type]][,"type"]==x[["type"]]
+    as.numeric(as.character(simulated_prediction[[loop_type]][tt,"Freq"]))
+  }) 
+  
+  this_fr$F_stat=Fvalue
+  this_fr$simu_freq=simu_freq
+  this_fr$simu_ratio=simu_ratio
+  this_fr$freq_ratio=this_fr$Freq/this_fr$simu_freq
+  this_fr=this_fr[order(this_fr$freq_ratio,decreasing=TRUE),]
+  comparison_summary[[loop_type]]=this_fr
+}
+
+comparison_summary_frame=do.call(rbind,comparison_summary)    
+comparison_summary_frame=comparison_summary_frame[order(comparison_summary_frame$freq_ratio,decreasing=TRUE),]
+#comparison_summary_frame=comparison_summary_frame[comparison_summary_frame$freq_ratio>0.8,]
+#comparison_summary_frame_major=comparison_summary_frame[comparison_summary_frame$Freq>10,]
+comparison_summary_frame_major=comparison_summary_frame[order(comparison_summary_frame$Var1),]
+comparison_summary_frame_major=comparison_summary_frame_major[comparison_summary_frame_major$Freq>5,]
+
+loop_types=(lapply(strsplit(as.character(comparison_summary_frame_major$Var1),"-"),function(x){paste(x[1:2],collapse="-")}))
+# find the most popular cluster 
+splitted_by_loop_types=split(comparison_summary_frame_major,unlist(loop_types))
+
+wrong_case_summary_for_all_loops=list()
+for(each_l in names(splitted_by_loop_types)){
+  H1_related=comparison_summary_frame_major[grepl(each_l,comparison_summary_frame_major$Var1),]
+  # most prevalent cluster 
+  if(each_l=="L3-9"){
+    most_p="L3-9-cis7-1"
+  }else{
+    most_p=paste(c(each_l,"-1"),collapse="")
+  }
+  H1_cluster_one_recovery_fail=H1_related[grepl(most_p,H1_related$Var1),]
+  H1_cluster_one_precision_fail=H1_related[grepl(most_p,H1_related$Var2),]
+  H1_cluster_one_recovery_fail$error_type=rep("cluster_1_recovery",dim(H1_cluster_one_recovery_fail)[1])
+  H1_cluster_one_precision_fail$error_type=rep("cluster_1_precision",dim(H1_cluster_one_precision_fail)[1])
+  other_types=H1_related[!(grepl(most_p,H1_related$Var1) |grepl(most_p,H1_related$Var2)),]
+  other_types$error_type=rep("less_popular_cluster_error",dim(other_types)[1])
+  all_annotated=rbind(rbind(other_types,H1_cluster_one_precision_fail),H1_cluster_one_recovery_fail)
+  
+  wrong_case_summary=as.data.frame(t(as.data.frame(lapply(split(all_annotated,all_annotated$error_type),function(x){
+    c(sum(x$Freq),sum(x$simu_freq))
+  }))))
+  wrong_case_summary$original_wrong_case=wrong_case_summary$V1
+  wrong_case_summary$V1=wrong_case_summary$V1/max(wrong_case_summary$V1)*10
+  
+  wrong_case_summary$error_type=row.names(wrong_case_summary)
+  wrong_case_summary_for_all_loops[[each_l]][[2]]=data.frame(all_annotated,loop=rep(each_l,dim(all_annotated)[1]))
+}
+all_annotated=do.call(rbind,lapply(wrong_case_summary_for_all_loops,function(x){x[[2]]}))
+wrong_case_summary=do.call(rbind,lapply(wrong_case_summary_for_all_loops,function(x){x[[1]]}))
+
+ggplot(all_annotated, aes(x = freq_ratio,fill=error_type,color=error_type)) +
+  geom_density()+facet_wrap(~loop,scales="free")+theme(axis.text.x = element_text(size=9,angle=90, hjust=1),plot.title = element_text(hjust=0.5))+xlab("frequency ratio")+ggtitle("Ratio distribution colored by error type and separate by loop type")
+ggsave("ratio_distribution.pdf", plot = last_plot(), device = NULL, path = NULL,
+       width = 7.5, height = 5, units = "in", limitsize = TRUE)
+
+ggplot(all_annotated)+
+  geom_bar(data=wrong_case_summary,aes(x=error_type,y=V1,fill=error_type),inherit.aes = FALSE,stat = "identity")+
+  geom_text(data=wrong_case_summary,aes(x=error_type,y=V1,label=original_wrong_case), position=position_dodge(width=0.9), vjust=-0.25)+
+  geom_point(aes(x=error_type,y=freq_ratio,color=freq_ratio))+theme(axis.text.x=element_blank())+
+  ggtitle("The BLAST error type bias compared to random assignment")+
+  facet_wrap(~loop)+ylim(0,12)+ylab("ratio of BLAST error vs random assignment simulation")+theme(plot.title=(element_text(size = 11)))
+ggsave("random_simulation.pdf", plot = last_plot(), device = NULL, path = NULL,
+       width = 7.5, height = 5, units = "in", limitsize = TRUE)
+

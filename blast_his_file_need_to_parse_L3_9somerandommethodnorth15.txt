@@ -1,0 +1,2 @@
+L3-9-cis7-3.2ajuL.pdb	L3-9-cis7-3.4llyB.pdb	55.556	9	4	0	1	9	1	9	0.005	14.2
+L3-9-cis7-3.2ajuL.pdb	L3-9-cis7-3.1l7iL.pdb	55.556	9	4	0	1	9	1	9	0.005	14.2

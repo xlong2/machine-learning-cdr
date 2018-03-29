@@ -1,0 +1,23 @@
+
+#ten_foldcv_blindblastlist
+conf_tables_all_loops_blindBLAST=list()
+conf_tables_all_loops_blindBLAST_diff=list()
+for(loop in names(ten_foldcv_blindblastlist)){
+  
+  model_re=ten_foldcv_blindblastlist[[loop]]
+  repeats=ceiling(length(model_re)%/%10)
+  print(length(model_re))
+  print(repeats)
+  model_re_com=do.call(rbind,model_re)
+  model_re_com[,1]=sapply(strsplit(model_re_com[,1],"\\."),"[[",1)
+  model_re_com[,2]=sapply(strsplit(model_re_com[,2],"\\."),"[[",1)
+  conf_t=as.data.frame(table(model_re_com[,1],model_re_com[,2]))
+  conf_t$Freq=conf_t$Freq/repeats
+  
+  conf_tables_all_loops_blindBLAST[[loop]]=conf_t
+  
+  conf_t=conf_t[conf_t$Freq>0 & as.character(conf_t[,1])!=as.character(conf_t[,2]),]
+  conf_tables_all_loops_blindBLAST_diff[[loop]]=conf_t
+}
+save_file("conf_tables_all_loops_blindBLAST_diff")
+save_file("conf_tables_all_loops_blindBLAST")

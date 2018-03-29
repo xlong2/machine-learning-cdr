@@ -1,0 +1,4 @@
+L3-11-none.4zd3L.pdb	L3-11-none.4ptuA.pdb	54.545	11	5	0	1	11	1	11	0.018	16.3
+L3-11-none.4zd3L.pdb	L3-11-none.2ny1C.pdb	54.545	11	5	0	1	11	1	11	0.024	16.3
+L3-11-none.4zd3L.pdb	L3-11-none.2nxyC.pdb	54.545	11	5	0	1	11	1	11	0.024	16.3
+L3-11-none.4zd3L.pdb	L3-11-none.3so3B.pdb	45.455	11	6	0	1	11	1	11	0.086	14.6

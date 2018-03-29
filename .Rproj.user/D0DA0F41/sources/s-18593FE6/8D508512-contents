@@ -1,0 +1,56 @@
+
+
+
+effect_size_large_sig # for this cluster 
+# for each of the pair # find out the specific sequences that generate worng cases with cluster Var1 predicted to cluster Var2
+most_similar_score_result_with_cluster=lapply(names(most_similar_score_result),function(x){
+  y=most_similar_score_result[[x]]
+  sequences = data_by_loop_type_list_unduplicated[[x]][[1]]#load the sequences from a loop length
+  features = data_by_loop_type_list_unduplicated[[x]][[4]]
+  y$query_cluster=as.character(sequences[y[,1],"cluster_type"])
+  y$query_sequence=as.character(apply(sequences[y[,1],features],1,function(x){paste(unlist(x),collapse="")}))
+  y$template_cluster=as.character(sequences[y[,2],"cluster_type"])
+  y$templaste_sequence=as.character(apply(sequences[y[,2],features],1,function(x){paste(unlist(x),collapse="")}))
+  
+  return(y)
+  
+})
+names(most_similar_score_result_with_cluster)=names(most_similar_score_result)
+wrong_info_list=list()
+specific_pairing_problems=list()
+for(each_wrong_cat in 1:dim(effect_size_large_sig)[1]){
+  print(each_wrong_cat)
+  Var1=as.character(effect_size_large_sig[each_wrong_cat,"Var1"])
+  Var2=as.character(effect_size_large_sig[each_wrong_cat,"Var2"])
+  most_similar_this_loop=most_similar_score_result_with_cluster[[effect_size_large_sig[each_wrong_cat,"loop"]]]
+  wrong_info=most_similar_this_loop[most_similar_this_loop$query_cluster==Var1 & most_similar_this_loop$template_cluster==Var2,]
+  wrong_info$wrong_cat=paste(wrong_info$query_cluster,wrong_info$template_cluster,sep="")
+  
+  result=apply(wrong_info,1,function(h){   
+    query_seq=strsplit(as.character(h["query_sequence"]),"")[[1]]
+    tem_seq=strsplit(as.character(h["templaste_sequence"]),"")[[1]]
+    pos=which(query_seq!=tem_seq)
+    a=as.character(query_seq[pos])
+    b=as.character(tem_seq[pos])
+    result=sapply(1:length(pos),function(x){
+      paste(c(pos[x],sort(c(a[x],b[x]))),collapse="")
+    })
+    return(result)
+  })
+  specific_pairing_problems[[paste(c(Var1,Var2),collapse="")]]=result
+  wrong_info_list[[paste(c(Var1,Var2),collapse="")]]=wrong_info
+}
+
+num_mis_match=do.call(rbind, lapply(names(specific_pairing_problems),function(y){x=specific_pairing_problems[[y]];k=as.data.frame(table(unlist(lapply(x,length)))); k$type=rep(y,dim(k)[1]);return(k)}))
+
+ggplot(num_mis_match)+geom_bar(aes(x=Var1,y=Freq),stat="identity")+facet_grid(~type)+ theme(strip.text.x = element_text(size = 8)) +xlab("mismatch a.a. number")+ggtitle("Mismatch a.a. frequency")
+ggsave("~/lab_work_data/proline_classifier/num_mis_match.pdf", plot = last_plot(), device = NULL, path = NULL,
+       width = 7.5, height = 5, units = "in", limitsize = TRUE)
+
+
+wrong_paring_dissimilar_sequences=lapply(specific_pairing_problems,function(x){table(unlist(x))})
+lapply(specific_pairing_problems,function(x){table(unlist(x))})
+
+wrong_info_frame=do.call(rbind, lapply(wrong_info_list,function(x){print(x[,1]);data.frame(x$query_cluster[1],x$template_cluster[1],length(unique(x[,1])),length(unique(x[,2])), sort(table(x[,2]),decreasing=TRUE)[1])}))
+colnames(wrong_info_frame)=c("query_cluster","template_cluster","unique_query_cases","unique_template_cases","template_with_largest_error_number")
+write.csv(wrong_info_frame,file="./proline_classifier/query_template.csv")

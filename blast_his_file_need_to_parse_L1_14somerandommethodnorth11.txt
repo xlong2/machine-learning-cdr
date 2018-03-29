@@ -1,0 +1,6 @@
+L1-14-none.4ut7L.pdb	L1-14-none.3h42L.pdb	83.333	6	1	0	1	6	1	6	0.25	11.2
+L1-14-none.4ut7L.pdb	L1-14-none.4m6nL.pdb	83.333	6	1	0	1	6	1	6	0.28	10.8
+L1-14-none.4ut7L.pdb	L1-14-none.3gheL.pdb	50.000	8	4	0	1	8	1	8	0.38	10.8
+L1-14-none.4ut7L.pdb	L1-14-none.4tscL.pdb	83.333	6	1	0	1	6	1	6	0.47	10.4
+L1-14-none.4ut7L.pdb	L1-14-none.1aqkL.pdb	66.667	6	2	0	1	6	1	6	0.84	10.0
+L1-14-none.4ut7L.pdb	L1-14-none.1jvkB.pdb	44.444	9	5	0	1	9	1	9	1.2	 9.5

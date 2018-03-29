@@ -1,0 +1,8 @@
+L1-16-none.4fz8L.pdb	L1-16-none.5chnB.pdb	88.889	9	1	0	1	9	1	9	8.94e-04	16.8
+L1-16-none.4fz8L.pdb	L1-16-none.3fo9A.pdb	88.889	9	1	0	1	9	1	9	0.001	16.8
+L1-16-none.4fz8L.pdb	L1-16-none.2vq1A.pdb	88.889	9	1	0	1	9	1	9	0.001	16.8
+L1-16-none.4fz8L.pdb	L1-16-none.5dlmL.pdb	77.778	9	2	0	1	9	1	9	0.002	15.9
+L1-16-none.4fz8L.pdb	L1-16-none.1nakM.pdb	88.889	9	1	0	1	9	1	9	0.004	15.1
+L1-16-none.4fz8L.pdb	L1-16-none.1cfvL.pdb	85.714	7	1	0	1	7	1	7	0.022	13.4
+L1-16-none.4fz8L.pdb	L1-16-none.5bmfL.pdb	55.556	9	4	0	1	9	1	9	0.025	13.4
+L1-16-none.4fz8L.pdb	L1-16-none.1ucbL.pdb	55.556	9	4	0	1	9	1	9	0.029	13.4

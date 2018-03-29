@@ -1,0 +1,4 @@
+L1-13-none.5drnB.pdb	L1-13-none.5dscL.pdb	61.538	13	5	0	1	13	1	13	0.002	19.3
+L1-13-none.5drnB.pdb	L1-13-none.4jo1M.pdb	46.154	13	7	0	1	13	1	13	0.018	16.8
+L1-13-none.5drnB.pdb	L1-13-none.5i8oL.pdb	46.154	13	7	0	1	13	1	13	0.023	16.8
+L1-13-none.5drnB.pdb	L1-13-none.5i8kL.pdb	46.154	13	7	0	1	13	1	13	0.56	12.9

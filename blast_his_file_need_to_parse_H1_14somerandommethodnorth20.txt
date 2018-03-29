@@ -1,0 +1,6 @@
+H1-14-none.2xzcH.pdb	H1-14-none.4r7dI.pdb	87.500	8	1	0	1	8	1	8	0.002	15.9
+H1-14-none.2xzcH.pdb	H1-14-none.5e94B.pdb	66.667	9	3	0	1	9	1	9	0.004	15.5
+H1-14-none.2xzcH.pdb	H1-14-none.3qg6H.pdb	66.667	9	3	0	1	9	1	9	0.004	15.5
+H1-14-none.2xzcH.pdb	H1-14-none.1ncwH.pdb	66.667	9	3	0	1	9	1	9	0.004	15.5
+H1-14-none.2xzcH.pdb	H1-14-none.4xnqB.pdb	88.889	9	1	0	1	9	1	9	0.024	13.4
+H1-14-none.2xzcH.pdb	H1-14-none.4kteH.pdb	87.500	8	1	0	1	8	1	8	0.069	12.5

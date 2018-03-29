@@ -1,0 +1,131 @@
+
+# get the specific prediction using similarity scores 
+most_similar_score_result=list()
+all_loop_sig_frame_list=list()
+for(each_l in names(all_similarity_matrix)){
+  #get sequences 
+  this_dis=all_dist_matrix[[each_l]]
+  this_dis=forceSymmetric(this_dis)
+  this_simi=all_similarity_matrix[[each_l]]
+  this_simi=forceSymmetric(this_simi)
+  sequences = data_by_loop_type_list_unduplicated[[each_l]][[1]]#load the sequences from a loop length
+  if(dim(this_dis)[1]!=dim(sequences)[1]){
+    print("number does not match stop!")
+    stop()
+  }
+  features = data_by_loop_type_list_unduplicated[[each_l]][[4]]
+  case_ids= sequences[,"identifier"]
+  # do 100 times sampling to get the distribution of the sd 
+  # splitted_sequence=split(sequences,sequences$cluster_type)
+  clusters=unique(sequences$cluster_type)
+  prediction_it=list()
+  
+  print(c(each_l))
+  all_clu_re=list()
+  most_similar_list=list()
+  for(cluster in clusters){
+    ind_cl=which(sequences$cluster_type==cluster)
+    this_ind_most_sim_ind_list=list()
+    for(this_ind in ind_cl){
+      # print(this_ind)
+      relevant_indexes=(1:dim(sequences)[1])[(1:dim(sequences)[1])!=this_ind]
+      the_max=max(unlist(this_simi[this_ind,]),na.rm=TRUE)
+      this_ind_most_sim_ind=which(unlist(this_simi[this_ind,])==the_max)[1]
+      # if(length(unlist(this_ind_most_sim_ind))>1){
+      #    stop()
+      #  }
+      print(as.data.frame(c(this_ind, this_ind_most_sim_ind)))
+      this_ind_most_sim_ind_list=c(this_ind_most_sim_ind_list,this_ind_most_sim_ind)
+    }
+    final_table=data.frame(sequences[ind_cl,"cluster_type"],sequences[unlist(this_ind_most_sim_ind_list),"cluster_type"])
+    match_result=data.frame(query=ind_cl,template=unlist(this_ind_most_sim_ind_list))
+    tem=cbind(match_result,final_table)
+    tem$out_of_cluster_similarity=rep(NA,dim(tem)[1])
+    tem$within_cluster_similarity=rep(NA,dim(tem)[1])
+    all_disin_query_cluster=sequences[ind_cl,"dis"]
+    percentile <- ecdf(all_disin_query_cluster)
+    
+    for(x in 1:dim(tem)[1]){
+      query_id=tem[x,"query"]
+      template_id=tem[x,2]
+      query_cluster=tem[x,3]
+      template_cluster=tem[x,4]
+      temcluster_ids=which(sequences$cluster_type==template_cluster)
+      template_dis_s=sequences[temcluster_ids,"dis"]
+      temp_percentile=ecdf(template_dis_s)
+      non_querycluster_cluster=which(sequences$cluster_type!=query_cluster)
+      print(c("query_id ", query_id))
+      within_querycluster_ind=ind_cl[ind_cl!=query_id]
+      within_most_sim=max(unlist(this_simi[query_id,within_querycluster_ind]),na.rm=TRUE)
+      query_to_querycluster_dis=sequences[query_id,"dis"]
+      #query_dis_percentile = percentile(query_to_querycluster_dis)
+      template_to_tempcluster_dis=sequences[template_id,"dis"]
+      query_dis_percentile=percentile(query_to_querycluster_dis)
+      temp_dis_percentile=temp_percentile(template_to_tempcluster_dis)
+      out_most_sim=max(unlist(this_simi[query_id,non_querycluster_cluster]),na.rm=TRUE)
+      #number_nei=which()
+      tem[x,"out_of_cluster_similarity"]=out_most_sim
+      tem[x,"within_cluster_similarity"]=within_most_sim
+      tem[x,"query_to_cluster_distance"]= query_to_querycluster_dis
+      tem[x,"query_to_clustercen"]=query_dis_percentile
+      tem[x,"template_to_clustercen"]=temp_dis_percentile
+      tem[x,"number_neighborhood_structure"]=length(which(unlist(this_dis[tem[x,"query"],])<all_neighborhood_dist[[each_l]]))
+      
+    }
+    most_similar_list[[cluster]]=tem
+    all_clu_re[[cluster]]=final_table
+    
+  }# end of iterating all clusters in this loop type 
+  prediction_it=as.data.frame(table(do.call(rbind,all_clu_re)))
+  most_similar_score_result[[each_l]]=do.call(rbind,most_similar_list)
+  all_clu_re=""
+  gc()
+  
+  # get a p value and also an effect size 
+  prediction_all=prediction_it
+  prediction_all$error_type=paste(prediction_all[,1],prediction_all[,2],sep="")
+  
+  
+  
+  significance_list = list()
+  effect_size_list=list()
+  this_error_list=list()
+  mean_retrieve_the_errors_from_random=list()
+  sd_list=list()
+  query_total_count=list()
+  for (iter_error in 1:length(prediction_all$error_type) ){  # start iterating over the error types in this loop to assess its significance
+    tryCatch({
+      each_error = prediction_all$error_type[iter_error]
+      retrieve_the_errors_from_random = all_significance_simulation[[each_l]][[each_error]]
+      this_error = prediction_all[iter_error, "Freq"]
+      aycdf <- ecdf(retrieve_the_errors_from_random)
+      
+      significance = aycdf(this_error)
+      significance_list[[iter_error]] = significance
+      this_error_list[[iter_error]]=this_error
+      sd_list[[iter_error]]=sd(retrieve_the_errors_from_random)
+      mean_retrieve_the_errors_from_random[[iter_error]]=mean(retrieve_the_errors_from_random)
+      
+      effect_size_list[[iter_error]]=(this_error-mean(retrieve_the_errors_from_random))/sd(retrieve_the_errors_from_random)
+    },error=function(e){})
+  }# end of iterating over all errors in this this loop type
+  sig_data_frame = data.frame(error_type = prediction_all$error_type,
+                              significance = unlist(significance_list),effect_size=unlist(effect_size_list),error_count=unlist(this_error_list),mean_simu_error=unlist(mean_retrieve_the_errors_from_random),sd=unlist(sd_list),Var1=prediction_all[,1],Var2=prediction_all[,2])
+  sig_data_frame=sig_data_frame[sig_data_frame$mean_simu_error>1 | (sig_data_frame$significance>=0.975|sig_data_frame$significance<=0.025),]
+  all_loop_sig_frame_list[[each_l]] = sig_data_frame
+  
+  sig_data_frame=""
+  all_the_values = ""
+  gc()
+}
+
+
+most_similar_score_result = lapply(most_similar_score_result,function(x){names(x)= c("query", "template","query_cluster","template_cluster","outcluster_similarity","incluster_similarity","query_to_cluster_distance","query_to_clustercen","template_to_clustercen")
+return(x)
+})
+
+save(most_similar_score_result,file="../proline_classifier/most_similar_score_result.rds")
+save(all_loop_sig_frame_list,file="../proline_classifier/all_loop_sig_frame_list.rds")
+
+
+

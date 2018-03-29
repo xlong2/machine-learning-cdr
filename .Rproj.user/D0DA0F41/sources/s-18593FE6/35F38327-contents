@@ -1,0 +1,106 @@
+# this script is a refactor of the Untitled.R in the R/ directory
+# This script is a jazz version of the blind_blast.R in R/directory
+# Purpose:
+#    Read in a speficic loop type 
+#    Do LOOCV for blind blast
+#    Refer to the rmsd_table to get the rmsd from the template
+#    Output the prediction result 
+#    Do a blast search within the predicted cluster; Or a blast search outside of the clusters or globally if it is not identified as any cluster. 
+#    Retrieve the rmsd between the predicted sequence and query sequence. Record it 
+#    Also this script should enable blind blast search as currently employed in the rosetta
+#    It should output the data format so that comparison between the prediction accuracy and rmsds are easy
+
+# output:
+#   File1:    Confusion table with rownames be the real cases and colnames be the prediction cases of all the predictions curated from LOOCV
+#             rmsd_cluster_guided_blast_rmsd_",loop_type,"_",paste(c(each_method,cluster_dis),collapse="-"),"_conftable.rds"
+#   File2:    Mean of the three best templated for each sequence and stored as a table  :
+#               seq
+#                H1_13-1.4312    1.003    1.0023  2.323  3.22
+#                ...
+#    
+# Input:
+#   
+#   loop_type : "H2_9"
+#   the_method  "blindblast"
+#   cluster_dis :   "north"  / "rmsd"
+
+library(Matrix)
+library("grid")
+library("caret")
+#library(RSQLite)
+#library("DBI")
+library("pryr")
+library("protr")
+library("gbm")
+
+
+
+# generate colors
+library(RColorBrewer)
+n <- 20
+qual_col_pals = brewer.pal.info[brewer.pal.info$category == 'qual',]
+col_vector = unlist(mapply(brewer.pal, qual_col_pals$maxcolors, rownames(qual_col_pals)))
+col_vector=col_vector[c(1:3,5:(n))]
+col_vector=c(col_vector,"#bdbdbd")
+pie(rep(1,n), col=col_vector)
+
+test=TRUE
+if(test){
+  the_method="blindblast_just_get_alignment"
+  cluster_dis="north"
+
+
+
+}else{
+args <- commandArgs(trailingOnly = TRUE)
+loop_type = args[1]
+the_method = args[2]
+cluster_dis = args[3]
+rmsd_table_rdata_dir = "../pairwise_rmsd/rmsd_result/" # post all the L3_9_rmsd_table.Rdata kind of dta
+data_by_loop_file_dir ="./Machine_learning_jazz_version/" 
+load(paste(c(data_by_loop_file_dir,"data_by_loop_type_list_unduplicated.Rdata"),collapse=""))
+
+}
+
+
+overall_prefix="./proline_classifier/Data_processed"
+file=paste(c(overall_prefix,"/data_by_loop_type_list_unduplicated_no_filtering_original.rds"),collapse = "")
+data_by_loop_type_list_unduplicated=readRDS(file)
+subsitution_matrix_name ="wahtw"  #"/Volumes/lab/macbook/lab_work_data/vall_rmsd/loop_sub_matrix.csv"
+subsitution_matrix="PAM30"
+result_dir = "./proline_classifier/Data_processed/"
+mkcommand=paste(c("mkdir ",result_dir), collapse=" ")
+system(mkcommand)
+methods= c(the_method) # specify the machine learning methods to be used 
+each_method=the_method
+
+# end of iterating all folds
+
+the_method="somerandommethod"
+
+data(AAPAM30)
+AAPAM30_index=1:20
+names(AAPAM30_index)=rownames(AAPAM30)
+direct=getwd()
+plot_dir="E:/Google_drive/2018 spring/lab_work_data/machine_learning_cdr/proline_classifier/Plots/"
+
+save_file1="./proline_classifier/Data_processed/overall_accuracy.rds"
+save_file3 = paste(c(result_dir,"all_pred_tables_realcluster_list",".rds"),collapse="")
+all_pred_tables_realcluster_list=readRDS(save_file3)
+overall_accuracy=readRDS(save_file1)
+
+setwd("./proline_classifier/")
+
+file.sources = list.files(pattern="*functions.R")
+sapply(file.sources,source,.GlobalEnv)
+setwd(direct)
+setwd("./proline_classifier/Data_processed/")
+data.sources = list.files(pattern="*.rds")
+for(x in data.sources){
+  tryCatch({
+  x_name=strsplit(x,"\\.")[[1]][1]
+  print(x)
+  assign(x_name,readRDS(x))}, error = function(e) {})
+}
+setwd(direct)
+

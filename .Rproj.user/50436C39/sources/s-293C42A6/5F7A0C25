@@ -1,0 +1,23 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1522344112165.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "0",
+    "id" : "5F7A0C25",
+    "lastKnownWriteTime" : 1522344125,
+    "last_content_update" : 1522344125440,
+    "path" : "~/Google Drive/2018_spring/lab_work_data/machine_learning_cdr/proline_classifier/discarded_code_March30th.R",
+    "project_path" : "proline_classifier/discarded_code_March30th.R",
+    "properties" : {
+        "cursorPosition" : "14,0",
+        "scrollLine" : "0",
+        "tempName" : "Untitled1"
+    },
+    "relative_order" : 15,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}
