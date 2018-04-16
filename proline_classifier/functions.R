@@ -709,15 +709,34 @@ print(y)
 }
 
 
+even_out_all_classes<-function(training_cases){
+  
+  
+  splitted_class=split(training_cases,training_cases$cluster_type)
+  proportions=unlist(lapply(split(training_cases,training_cases$cluster_type),function(x){dim(x)[1]}))
+  max_class=names(proportions)[which(proportions==max(proportions))]
+  remaining_class=names(proportions)[names(proportions)!=max_class]
+  for(each_remaining in remaining_class){
+    ratio=proportions[max_class]%/%proportions[each_remaining]
+    if(ratio>1){
+      ratio=ratio-1
+    }
+    to_be_added=do.call(rbind,replicate(ratio,splitted_class[[each_remaining]],simplify = FALSE))
+    training_cases=rbind(training_cases,to_be_added)    
+  }
+  return(training_cases)
+}
+
+
 # getting the training result
-generic_train<-function(each_loop_length_data_feature_string_rmsd,each_method,training_cases){
+generic_train<-function(each_loop_length_data_feature_string_rmsd,each_method,training_cases,gbmGrid,loop_type){
   # to add classes to off set 
   training_cases=even_out_all_classes(training_cases)
   if(dim(training_cases)[1]*0.6*0.5 < as.numeric(as.character(gbmGrid[["n.minobsinnode"]]))){
     training_cases=rbind(training_cases,training_cases)
     training_cases=rbind(training_cases,training_cases)
-    
   }
+  n.trees=gbmGrid[["n.trees"]];
   
   set.seed(1)
   
@@ -726,7 +745,7 @@ generic_train<-function(each_loop_length_data_feature_string_rmsd,each_method,tr
   k <- 10 # number of folds
   if(loop_type %in% c("H1_13", "H2_10", "L3_9" ) && n.trees>=1000 ){
     r=1}
-  returned_results=make_3_10_cross_val(training_cases,r,k)
+  returned_results=make_3_10_cross_val(training_cases,r,k)  # make division
   folds_spec=returned_results[[1]]
   training_cases=returned_results[[2]]   # the training cases would have its mo
   folds.list.out=folds_spec[[1]]
@@ -759,5 +778,65 @@ generic_train<-function(each_loop_length_data_feature_string_rmsd,each_method,tr
   
 }
 
+train_final_model<-function(each_loop_length_data_feature_string_rmsd,each_method,training_cases,gbmGrid){
+  # to add classes to off set 
+  training_cases=even_out_all_classes(training_cases)
+  if(dim(training_cases)[1]*0.6*0.5 < as.numeric(as.character(gbmGrid[["n.minobsinnode"]]))){
+    training_cases=rbind(training_cases,training_cases)
+    training_cases=rbind(training_cases,training_cases)
+  }
+  
+  set.seed(1)
+  
+  
+  r <-1 # number of repeats
+  k <- 1 # number of folds
+
+  returned_results=make_3_10_cross_val(training_cases,r,k)  # make division
+  folds_spec=returned_results[[1]]
+  training_cases=returned_results[[2]]   # the training cases would have its mo
+  folds.list.out=folds_spec[[1]]
+  folds.list=folds_spec[[2]]
+  fitControl <- trainControl(method = "none",
+                             ## Estimate class probabilities
+                             classProbs = TRUE,
+                             returnResamp="all",
+                             ## Evaluate performance using
+                             ## the following function
+                             savePredictions="final",
+                             summaryFunction = multiClassSummary)
+  trained_model=""
+  trained_model <- train(each_loop_length_data_feature_string_rmsd, data = training_cases,
+                         #distribution = "adaboost",
+                         method = "gbm", bag.fraction = 0.5,   # fold number 10 
+                         #nTrain = round(nrow(training_cases) *.75),
+                         trControl = fitControl,
+                         tuneGrid = gbmGrid,
+                         verbose = TRUE,
+                         
+                         ## Specify which metric to optimize
+                         metric = "kappa")
+  return(trained_model)
+  
+}
+
+
+
+
+get_conf_from_blindBLAST<-function(model_re_com,unique_cluster,repeats){
+  model_re_com[,1]=sapply(strsplit(model_re_com[,1],"\\."),"[[",1)
+  model_re_com[,2]=sapply(strsplit(model_re_com[,2],"\\."),"[[",1)
+  which_1=which(!model_re_com[,1]%in%unique_cluster)
+  model_re_com[which_1,1]=rep(paste(c(strsplit(loop,"_")[[1]],"none"),collapse="-"),length(which_1))
+  which_2=which(!model_re_com[,2]%in%unique_cluster)
+  model_re_com[which_2,2]=rep(paste(c(strsplit(loop,"_")[[1]],"none"),collapse="-"),length(which_2))
+  
+  
+  conf_t=as.data.frame(table(model_re_com[,1],model_re_com[,2]))
+  conf_t$Freq=conf_t$Freq/repeats
+  accuracy_result=sum(conf_t[as.character(conf_t$Var1)==as.character(conf_t$Var2),"Freq"])/sum(conf_t[,"Freq"])
+  
+  return(accuracy_result)
+}
 
 

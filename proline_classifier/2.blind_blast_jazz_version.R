@@ -72,20 +72,35 @@ blind_blast_cv_result_summary$loop=split_vector_and_replace(blind_blast_cv_resul
 blind_blast_cv_result_summary$length=split_vector_and_replace(blind_blast_cv_result_summary$loop_type,"_",2,2,"-")
 blind_blast_cv_result_summary_reordered=reorder_factor(blind_blast_cv_result_summary,"loop","length")
 
-p1=ggplot(blind_blast_cv_result_summary_reordered,
+
+random_acc_sd$loop=split_vector_and_replace(rownames(random_acc_sd),"_",1,1,"")
+random_acc_sd$length=split_vector_and_replace(rownames(random_acc_sd),"_",2,2,"")
+random_acc_sd_reordered=reorder_factor(random_acc_sd,"loop","length")
+blind_blast_cv_result_summary_reordered_selected=blind_blast_cv_result_summary_reordered[,c( "mean" ,    "sd" , "loop", "length")]
+blind_blast_cv_result_summary_reordered_selected$method=rep("blindBLAST",dim(blind_blast_cv_result_summary_reordered_selected)[1])
+colnames(random_acc_sd_reordered)[1:2]=c("mean","sd")
+random_acc_sd_reordered$method=rep("random",dim(random_acc_sd_reordered)[1])
+combined_blindBLAST_random=as.data.frame(rbind(blind_blast_cv_result_summary_reordered_selected,random_acc_sd_reordered))
+combined_blindBLAST_random$sd=as.numeric(combined_blindBLAST_random$sd)
+combined_blindBLAST_random$mean=as.numeric(combined_blindBLAST_random$mean)
+combined_blindBLAST_random$min=combined_blindBLAST_random$mean-combined_blindBLAST_random$sd/2
+combined_blindBLAST_random$max=combined_blindBLAST_random$mean+combined_blindBLAST_random$sd/2
+
+p1=ggplot(combined_blindBLAST_random,
        aes(
          x = length,
          y = mean,
          ymin = mean - sd / 2,
-         ymax = mean + sd / 2
+         ymax = mean + sd / 2,colour=method
        )) + geom_errorbar(stat = "identity") + facet_grid(~loop,scales="free",space="free")+geom_point() + theme_classic()+
-  theme(plot.title = element_text(hjust = 0.5))
+  theme(plot.title = element_text(hjust = 0.5))+ theme(legend.position=c(.8, .8),axis.title.x=element_blank())
 options(digits = 2)
 
+
 grids=list()
-grids[[1]]=the_plot
-grids[[2]]=p1
-p=grid.arrange(arrangeGrob(grids[[1]],grids[[2]], ncol=1, nrow=2, heights=c(2,1) ,bottom=textGrob("wrong prediction type", gp=gpar(fontsize=14))  ))
+grids[[1]]=p1
+grids[[2]]=the_plot
+p=grid.arrange(arrangeGrob(grids[[1]],grids[[2]], ncol=1, nrow=2, heights=c(3,2) ,bottom=textGrob("wrong prediction type", gp=gpar(fontsize=14))  ))
 
 save_figure_specific_size(p,"blindBLAST_corrected_with_accuracy_rmsdplot.pdf",7,7)
 

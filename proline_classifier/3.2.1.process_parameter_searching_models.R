@@ -17,7 +17,6 @@ info=strsplit(each_file,"\\/")[[1]][length(strsplit(each_file,"\\/")[[1]])]
   loop_type=paste(strsplit(info, "_")[[1]][1:2],collapse="_")
   all_t[[loop_type]]=unique(the_model$trainingData$.outcome)
  number =paste(strsplit(strsplit(info, "_")[[1]][4],"-")[[1]][3:6],collapse="-")
- 
 
     all_models_list_by_loop[[loop_type]][[number]]=the_model$result
     rm(the_model)

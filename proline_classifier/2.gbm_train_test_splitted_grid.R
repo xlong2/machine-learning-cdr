@@ -1,31 +1,27 @@
-library("caret")
-library(parallel)
-args <- commandArgs(trailingOnly = TRUE)
-args=c(2, "L3_9", 4, 6, 1500, 0.01, 5)
-split_index=args[1]
-num_core=args[3]
-loop_type=args[2]
-interaction.depth=args[4]
-n.trees=args[5]
-shrinkage=args[6]
-n.minobsinnode=args[7]
-subsitution_matrix="PAM30"
 
+args <- commandArgs(trailingOnly = TRUE)
+#args=c( "H1_13", 4, 6, 1500, 0.01, 5)
+setwd("..")
+source('./proline_classifier/0.load_function_and_data.R')
+currect_d=getwd()
+print(c("current directory is ",currect_d))
+execute_training_rscript<-function(args){
+  print(args)
+  print(args[[2]])
+  print(args[2])
+loop_type=args[1]
+num_core=as.numeric(args[2])
+interaction.depth=as.numeric(args[3])
+n.trees=as.numeric(args[4])
+shrinkage=as.numeric(args[5])
+n.minobsinnode=as.numeric(args[6])
 registerDoMC(num_core)
 
-#gbmGrid=splitted_grid[[split_index]]
 gbmGrid=data.frame(interaction.depth=as.numeric(interaction.depth),n.trees=as.numeric(n.trees),shrinkage=as.numeric(shrinkage),n.minobsinnode=as.numeric(n.minobsinnode))
-
+print(gbmGrid)
 parameter_spe = paste(unlist(gbmGrid),collapse="-")
 each_method="gbm_test"
-cluster_dis="north"
-
-
-
-
-  data_by_loop_type_list_unduplicated=readRDS(paste(c(overall_prefix,"machine_learning_cdr/proline_classifier/data_by_loop_type_list_unduplicated_no_filtering.rds"),collapse = ""))
-  
-  gbm_result_dir=paste(c("./proline_classifier/rmsd_cluster_hits_rmsd/"),collapse="")
+gbm_result_dir=paste(c("./proline_classifier/rmsd_cluster_hits_rmsd/"),collapse="")
 
 to_save_file=paste(c(gbm_result_dir,"",loop_type,"_",paste(c(each_method,cluster_dis,parameter_spe),collapse="-"),"_trained_model_extra_test.rds"),collapse="")
 
@@ -36,7 +32,7 @@ data$cluster_type=sub("-","_",data$cluster_type)
 data$cluster_type=as.factor(as.character(data$cluster_type))
 
 
-
+print(data$cluster_type)
 
 #sequences$rmsd_cluster = as.character(sequences$rmsd_cluster)
 sequences=data
@@ -51,21 +47,19 @@ for(each_f in features){
 all_cases=all_cases[complete.cases(all_cases), ]
 all_cases$cluster_type=gsub("-","_",all_cases$cluster_type)
 all_cases$cluster_type=gsub(",",".",all_cases$cluster_type)
+all_cases$cluster_type=gsub("\\*","none",all_cases$cluster_type)
 
 all_cases$cluster_type=as.factor(as.character(all_cases$cluster_type))
 
 # tune the parameter
-trained_model = generic_train(each_loop_length_data_feature_string_rmsd,each_method,all_cases) 
 
-
-pred_result = trained_model$pred # get the prediction vs observation
-conf_table = table(all_cases$cluster_type, predict(trained_model,all_cases)) # get the confusion table and save it
-
-print("finished the cluster prediction")
-print(conf_table)
-
+trained_model = generic_train(each_loop_length_data_feature_string,each_method,all_cases,gbmGrid,loop_type) 
 saveRDS(trained_model,file =to_save_file)
+print(to_save_file)
+print("finished everything! at line 57")
 
 
 
 }
+}
+execute_training_rscript(args)

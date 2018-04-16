@@ -27,6 +27,7 @@
 library("Matrix")
 library("grid")
 library("caret")
+library("MLmetrics")
 library("parallel")
 #library(RSQLite)
 #library("DBI")
@@ -36,12 +37,10 @@ library("gbm")
 library("ggplot2")
 library("reshape2")
 library("gridExtra")
-
-
-
-
-# generate colors
+library("doMC")
 library(RColorBrewer)
+
+#generate colors
 n <- 20
 qual_col_pals = brewer.pal.info[brewer.pal.info$category == 'qual',]
 col_vector = unlist(mapply(brewer.pal, qual_col_pals$maxcolors, rownames(qual_col_pals)))
@@ -58,9 +57,10 @@ pie(rep(1,n), col=col_vector)
 
 
 overall_prefix="./proline_classifier/Data_processed"
-file=paste(c(overall_prefix,"/data_by_loop_type_list_unduplicated_no_filtering_original.rds"),collapse = "")
+
+file=paste(c(overall_prefix,"/data_by_loop_type_list_unduplicated_for_blindBLAST.rds"),collapse = "")
 data_by_loop_type_list_unduplicated=readRDS(file)
-data_by_loop_type_list_unduplicated=data_by_loop_type_list_unduplicated_for_blindBLAST
+#data_by_loop_type_list_unduplicated=data_by_loop_type_list_unduplicated_for_blindBLAST
 
 subsitution_matrix_name ="wahtw"  #"/Volumes/lab/macbook/lab_work_data/vall_rmsd/loop_sub_matrix.csv"
 subsitution_matrix="PAM30"
@@ -89,6 +89,8 @@ setwd("./proline_classifier/")
 
 file.sources = list.files(pattern="*functions.R")
 sapply(file.sources,source,.GlobalEnv)
+file.sources = list.files(pattern="*function.R")
+sapply(file.sources,source,.GlobalEnv)
 setwd(direct)
 setwd("./proline_classifier/Data_processed/")
 data.sources = list.files(pattern="*.rds")
@@ -99,6 +101,7 @@ for(x in data.sources){
   assign(x_name,readRDS(x));print("successfully loaded")},error=function(e) {e})
 }
 
+lapply(data_by_loop_type_list_unduplicated,function(x){dim(x[[1]])})
 
 # modify all all_similarity_matrix names to H1-13-
 

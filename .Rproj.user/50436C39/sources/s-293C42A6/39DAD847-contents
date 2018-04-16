@@ -1,4 +1,0 @@
-most_similar_score_result = lapply(most_similar_score_result,function(x){names(x)= c("query", "template","query_cluster","template_cluster","outcluster_similarity","incluster_similarity","query_to_cluster_distance","query_to_clustercen","template_to_clustercen")
-return(x)
-})
-save(most_similar_score_result,file="most_similar_score_result.rds")

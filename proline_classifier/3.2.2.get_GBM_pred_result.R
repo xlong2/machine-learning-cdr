@@ -4,7 +4,7 @@ lapply(all_models_list_by_loop,function(x){do.call(rbind,x)})
 conf_tables_all_loops_gbm_diff=list()
 conf_tables_all_loops_gbm=list()
 
-
+gbm_folds_sd=list()
 
 for(loop in names(all_models_list_by_loop)){
   paras=best_parameters_each_loop[[loop]]
@@ -15,6 +15,8 @@ for(loop in names(all_models_list_by_loop)){
   }
   model_file=paste(c("./proline_classifier/rmsd_cluster_hits_rmsd/",file_n),collapse="")
   model=readRDS(model_file)
+  gbm_folds_sd[[loop]]= model$results$AccuracySD
+  
   model_re=model$pred
   
   blindBLAST_unique_clusters=gsub("\\*","none",unique(data_by_loop_type_list_unduplicated_for_blindBLAST[[loop]][[1]]$cluster_type))
@@ -40,7 +42,7 @@ for(loop in names(all_models_list_by_loop)){
 }
 save_file("conf_tables_all_loops_gbm_diff")
 save_file("conf_tables_all_loops_gbm")
-
+save_file("gbm_folds_sd")
 
 #compare the conf_table from gbm to that of blindBLAST
 
