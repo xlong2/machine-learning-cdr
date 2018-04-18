@@ -1,5 +1,4 @@
 # this script is a refactor of the Untitled.R in the R/ directory
-# This script is a jazz version of the blind_blast.R in R/directory
 # Purpose:
 #    Read in a speficic loop type 
 #    Do LOOCV for blind blast
@@ -24,21 +23,16 @@
 #   the_method  "blindblast"
 #   cluster_dis :   "north"  / "rmsd"
 
-library("Matrix")
-library("grid")
-library("caret")
-library("MLmetrics")
-library("parallel")
-#library(RSQLite)
-#library("DBI")
-library("pryr")
-library("protr")
-library("gbm")
-library("ggplot2")
-library("reshape2")
-library("gridExtra")
-library("doMC")
-library(RColorBrewer)
+list.of.packages <- c("Matrix", "grid","caret","MLmetrics","parallel","pryr","protr","gbm","ggplot2","reshape2","gridExtra","doMC","RColorBrewer","e1071")
+local_package_dir="~/R_libs/"
+install_and_load_packages<-function(package_list,local_package_dir){
+new.packages <- list.of.packages[!(package_list %in% installed.packages()[,"Package"])]
+if(length(new.packages)) install.packages(new.packages,lib=local_package_dir)
+for(pack in package_list){
+  library(pack,character.only = T)
+}
+}
+install_and_load_packages(list.of.packages,local_package_dir)
 
 #generate colors
 n <- 20

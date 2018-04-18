@@ -37,6 +37,8 @@
 ~%2FGoogle%20Drive%2F2018_spring%2Flab_work_data%2Fmachine_learning_cdr%2Fproline_classifier%2F4.number_of_neighbors.R="CAAEF69E"
 ~%2FGoogle%20Drive%2F2018_spring%2Flab_work_data%2Fmachine_learning_cdr%2Fproline_classifier%2F5.plot_seq_logo.R="507DA61E"
 ~%2FGoogle%20Drive%2F2018_spring%2Flab_work_data%2Fmachine_learning_cdr%2Fproline_classifier%2F5.plot_variable_imp_loop_distribution.R="798D8D74"
+~%2FGoogle%20Drive%2F2018_spring%2Flab_work_data%2Fmachine_learning_cdr%2Fproline_classifier%2F6.1.gbm_train_final_model.R="9FEF1651"
+~%2FGoogle%20Drive%2F2018_spring%2Flab_work_data%2Fmachine_learning_cdr%2Fproline_classifier%2F6.2.generate_grid_run_for_final_model.R="5CEBCF8E"
 ~%2FGoogle%20Drive%2F2018_spring%2Flab_work_data%2Fmachine_learning_cdr%2Fproline_classifier%2FData_processed%2Fnot_much_improvement_output.csv="E3D9F2E5"
 ~%2FGoogle%20Drive%2F2018_spring%2Flab_work_data%2Fmachine_learning_cdr%2Fproline_classifier%2Fanalyze_improvement_for_cis_clusters.R="9867F5BA"
 ~%2FGoogle%20Drive%2F2018_spring%2Flab_work_data%2Fmachine_learning_cdr%2Fproline_classifier%2FblindBLAST_failed_then_gbm_saved_compare.R="1EC20250"

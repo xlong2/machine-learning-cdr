@@ -1,6 +1,5 @@
 
 args <- commandArgs(trailingOnly = TRUE)
-args=c( "H1_13", 4, 6, 1500, 0.01, 5)
 setwd("..")
 system("Rscript ./proline_classifier/0.load_function_and_data.R")
 execute_training_rscript<-function(args){
@@ -18,7 +17,7 @@ execute_training_rscript<-function(args){
   each_method="gbm_test"
   gbm_result_dir=paste(c("./proline_classifier/rmsd_cluster_hits_rmsd/"),collapse="")
   
-  to_save_file=paste(c(gbm_result_dir,"",loop_type,"_",paste(c(each_method,cluster_dis,parameter_spe),collapse="-"),"_trained_model_extra_test.rds"),collapse="")
+  to_save_file=paste(c(gbm_result_dir,"",loop_type,"_",paste(c(each_method,cluster_dis,parameter_spe),collapse="-"),"_final_model.rds"),collapse="")
   
   if(file.exists(to_save_file)){
     print("file_already_exists!")}else{
@@ -47,8 +46,8 @@ execute_training_rscript<-function(args){
       all_cases$cluster_type=as.factor(as.character(all_cases$cluster_type))
       
       # tune the parameter
-      
-      trained_model = generic_train(each_loop_length_data_feature_string,each_method,all_cases,gbmGrid) 
+
+      trained_model = train_final_model(each_loop_length_data_feature_string,each_method,all_cases,gbmGrid) 
       saveRDS(trained_model,file =to_save_file)
       
       

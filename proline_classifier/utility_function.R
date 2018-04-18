@@ -157,3 +157,13 @@ add_label_to_vector<-function(a_frame,label_value,label_name){
   a_frame[[label_name]]=rep(label_value,dim(a_frame)[1])
   return(a_frame)
 }
+
+
+# check whether a list of packages exist , if not then install in the local_package_dir
+install_and_load_packages<-function(package_list,local_package_dir){
+  new.packages <- list.of.packages[!(package_list %in% installed.packages()[,"Package"])]
+  if(length(new.packages)) install.packages(new.packages,lib=local_package_dir)
+  for(pack in package_list){
+    library(pack,character.only = T)
+  }
+}

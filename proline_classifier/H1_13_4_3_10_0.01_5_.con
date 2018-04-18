@@ -1,0 +1,17 @@
+#!/bin/bash
+
+########
+# setup
+########
+Executable = $script_dire/H1_13_4_3_10_0.01_5_exe.sh.sh
+universe     = vanilla
+Requirements = Arch == "x86_64"
+GetEnv       = True
+Output       = /Users/longxiyao/Google Drive/2018_spring/lab_work_data/machine_learning_cdr/proline_classifier/e/H1_13_4_3_10_0.01_5_exe.sh.out
+Error        = /Users/longxiyao/Google Drive/2018_spring/lab_work_data/machine_learning_cdr/proline_classifier/e/H1_13_4_3_10_0.01_5_exe.sh.error
+Log          = /Users/longxiyao/Google Drive/2018_spring/lab_work_data/machine_learning_cdr/proline_classifier/e/H1_13_4_3_10_0.01_5_exe.sh.log
+########
+# vars
+########
+Nice_User     = FALSE
+Queue 4

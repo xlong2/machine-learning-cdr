@@ -1,11 +1,10 @@
 
 args <- commandArgs(trailingOnly = TRUE)
 #args=c( "H1_13", 4, 6, 1500, 0.01, 5)
-setwd("..")
-source('./proline_classifier/0.load_function_and_data.R')
+  # load the environment 
 currect_d=getwd()
 print(c("current directory is ",currect_d))
-execute_training_rscript<-function(args){
+execute_training_rscript<-function(args){   # function for 
   print(args)
   print(args[[2]])
   print(args[2])
