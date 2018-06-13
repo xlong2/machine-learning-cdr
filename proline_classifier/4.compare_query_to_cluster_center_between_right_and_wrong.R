@@ -1,13 +1,14 @@
-#retrieve the number of neighbors
-ten_foldcv_blindblastlist
-get_correct
+#retrieve the number of structural neighbors for any query CDR inside its own cluster 
 
-
-
+current_d=getwd()
+if(grepl("proline_classifier",current_d)){
+  source("0.load_function_and_data.R")
+  
+}
 
 all_dist_matrix=lapply(all_dist_matrix,function(x){forceSymmetric(x)})
 wrong_and_right_cases_list=list()
-number_filter=5
+number_filter=5   # set the minimum number of data points to be 5
 for(loop in names(ten_foldcv_blindblastlist)){
   if(is.null(all_dist_matrix[[loop]])){next}
 single_f=ten_foldcv_blindblastlist[[loop]]
@@ -42,7 +43,9 @@ combined_data_r$length=as.numeric(split_vector_and_replace(combined_data_r$loop,
 combined_data_r=reorder_factor(combined_data_r,"loop_d","length")
 #combined_data_r=combined_data_r[!(combined_data_r$worng_or_right=="right"& grepl("none",combined_data_r$query_c)),]
 
- the_plot=ggplot(combined_data_r, aes(x=dis,fill=worng_or_right)) +  geom_density(alpha = 0.5,color=NA)+
+combined_data_r=combined_data_r[!grepl("none",combined_data_r$query_c),]
+combined_data_r$worng_or_right=factor(combined_data_r$worng_or_right,levels=c("wrong","right"))
+ the_plot=ggplot(combined_data_r, aes(x=dis,fill=worng_or_right)) +  geom_density(alpha = 0.43,color=NA)+xlim(0,12.5)+
    facet_wrap(~loop,scales="free")+theme_classic()+theme(legend.position = c(0.8,0.1))
  save_figure_specific_size(the_plot,"dihedral_angle_dis_cutoff_5.pdf",7,7)
    

@@ -1,50 +1,51 @@
-setwd("..")
-source('./proline_classifier/0.load_function_and_data.R') 
-core=4;
+# this script generate machine learning model parameters and launch jobs for training models in parallel  
 
-executable_dir="./proline_classifier/"  # where the Rscript that load data and run major computational task sits
+
+current_d=getwd()
+if(!grepl("proline_classifier",current_d)){
+  setwd("./proline_classifier")
+  
+}else{
+}
+source('./0.load_function_and_data.R')  
+
+Rscript_dir = "./training_script/"
+system(paste(c("mkdir ",Rscript_dir),collapse = " "))
+executable_dir="./"
+Rscript_name = "6.1.gbm_train_final_model.R"
+
+
+cores=4;
+
+a_new_script=TRUE
+
 master_condor_file="/Users/longxiyao/condor_script_master.sh"   # not needed if not using condor
 condor_script_dir="/Users/longxiyao/Google\ Drive/2018_spring/lab_work_data/machine_learning_cdr/proline_classifier/condor_script"  # also host shell scripts no needed either way
-
 condor_submit=FALSE
-setwd(condor_script_dir)    # get into the directory where the .sh file and also .con file resides 
-
+   # get into the directory where the .sh file and also .con file resides 
+parallel_install_max=1
+count=0
+para_script="run_final_models_master.sh"
 for(loop in names(data_by_loop_type_list_unduplicated)){
   nl=dim(data_by_loop_type_list_unduplicated[[loop]][[1]])[1]
   eta=max (0.01, 0.1*min(1, nl/10000))
   paras=best_parameters_each_loop[[loop]]   # find the corresponding best parameters 
-  args=c(loop,cores,paras[["interaction.depth"]],15, eta,5)
+  args=c(loop,cores,paras[["interaction.depth"]],paras[["n.trees"]], eta,paras[["n.minobsinnode"]])
   
   
-  executable=paste(args, collapse="_")
-  
-  exe_sh_file=paste(c(executable,"exe.sh"),collapse="_")  # customize shell script name
-  
-  Rscript_command_line=paste(c("Rscript 2.gbm_train_test_splitted_grid.R ",paste(args,collapse=" ")),collapse=" ")    # write shell script
-  write(paste(c("cd ",Rscript_dir),collapse=" "), file = exe_sh_file )
-  write(Rscript_command_line, file = exe_sh_file,append=TRUE )
-  
-  
+  exe_sh_file=generate_Rscript_command(args,Rscript_dir,Rscript_name)
+  print(exe_sh_file)
+  count= parallelize_jobs(parallel_install_max,count,a_new_script,exe_sh_file, para_script)
+  a_new_script=FALSE
   if(!condor_submit){
-    system(paste(c("nohup  sh ",exe_sh_file," &"),collapse=""))   # run stuff in parallel
+#    system(paste(c("nohup  sh ",exe_sh_file," &"),collapse=""))   # run stuff in parallel
   }else{
     # write condor script
-    con_file=paste(c(executable,".con"),collapse="_")  #customize condor script name
-    system(paste(c("cp ", master_condor_file," ", con_file),collapse=""))   # copy the master file to script directory
+    setwd(condor_script_dir) 
+    a= generate_condor_script(args,exe_sh_file,condor_script_dir,master_condor_file)
     
-    
-    
-    x <- readLines(con_file)
-    y <- gsub( "\\$executable", exe_sh_file, x )
-    z <- gsub( "\\$condor_script_dir", condor_script_dir, y )
-    w <- gsub( "\\$cores", cores, z )
-    cat(w, file=con_file, sep="\n")
-    
-    
-    
-    print(paste(c( condor_script_dir,"/",con_file),collapse=""))
-    a=paste(c("condor_submit ", condor_script_dir,"/",con_file),collapse="")
-    print(a)
     system(a)
   }
 }
+print(c("running ", para_script))
+system(paste(c("sh ",para_script),collapse=""))

@@ -1,6 +1,11 @@
-
-
 # perform 10 fold 3 repeats random prediction simulation
+
+current_d=getwd()
+if(grepl("proline_classifier",current_d)){
+  source("0.load_function_and_data.R")
+  
+}
+
 
 all_significance_simulation=list()  # the list to record all the test count 
 for(each_l in names(all_similarity_matrix)){

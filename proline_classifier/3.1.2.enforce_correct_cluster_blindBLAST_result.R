@@ -1,3 +1,13 @@
+# find which CDR loops are wrongly classified by blindBLAST, and enforce template searching in the correct clusters for these CDRs
+# for the enforced correct query-template CDR pairs, retrieve the corresponding RMSDs.
+
+
+current_d=getwd()
+if(grepl("proline_classifier",current_d)){
+  source("0.load_function_and_data.R")
+  
+}
+
 enforcing_correct_rmsd_list=list()
 for (loop_type in names(ten_foldcv_blindblastlist)[1]) {
   
@@ -7,7 +17,7 @@ for (loop_type in names(ten_foldcv_blindblastlist)[1]) {
   }else{next}
   the_result_list=ten_foldcv_blindblastlist[[loop_type]]
   
-  
+  features=data_by_loop_type_list_unduplicated[[loop_type]][[4]]
   this_loop_enforcing_correct_rmsds=lapply(1:length(the_result_list),get_accuracy_per_fold_enforcing_corrent_fold)
   enforcing_correct_rmsd_list[[loop_type]]=this_loop_enforcing_correct_rmsds
   if(is.null(enforcing_correct_rmsd_list[[loop_type]])){

@@ -25,3 +25,13 @@ all_loops_similarity_matrix=lapply(names(all_loops_similarity_matrix),function(x
 })
 names(all_loops_similarity_matrix)=all_similarity_matrix_names
 save_file("all_loops_similarity_matrix")
+
+
+
+# plot the data 
+
+data=data_by_loop_type_list_unduplicated[["H2_10"]][[1]]
+data_by_cluster_type=split(data,data$cluster_type)
+cluster_1_data=data_by_cluster_type[["1"]]
+seqs=sapply(as.data.frame(t((cluster_1_data[,paste("V",2:11,sep="")]))),function(x){paste(unlist(x),collapse="")})
+weblogo(unlist(seqs),format='png',sequence.type='protein')

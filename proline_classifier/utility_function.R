@@ -81,7 +81,7 @@ figure_non_cis=ggplot(data_frame)+geom_bar(aes(x=get(x_value),y=get(y_value),fil
                                            stat = "identity" ,position=position_dodge(width = 0.90))+
   theme_classic()+theme(plot.title = element_text(hjust = 0.5),legend.position = legend_pos)+
   xlab("")+facet_grid(~get(facet_value),scales="free",space="free")+
-  theme(text = element_text(size=11), axis.text.x = element_text(angle=90, hjust=1),axis.text.y = element_text(angle=90, hjust=1)) 
+  theme(text = element_text(size=14), axis.text.x = element_text(angle=90, hjust=1),axis.text.y = element_text(angle=90, hjust=1)) 
 return(figure_non_cis ) 
 }
 
@@ -95,7 +95,7 @@ plot_geom_box_figure<-function(data_frame,x_value,y_value,fill_value,facet_value
                           y = get(y_value),fill=get(fill_value)
                         ))+geom_boxplot()+
     theme_classic()+theme(plot.title = element_text(hjust = 0.5),legend.position = legend_pos)+xlab("")+facet_grid(~get(facet_value),scales="free",space="free")+
-    theme(text = element_text(size=11), axis.text.x = element_text(angle=0, hjust=1),axis.text.y = element_text(angle=90, hjust=1)) 
+    theme(text = element_text(size=12), axis.text.x = element_text(angle=0, hjust=1),axis.text.y = element_text(angle=90, hjust=1)) 
   return(figure_non_cis )
 }
 
@@ -159,11 +159,30 @@ add_label_to_vector<-function(a_frame,label_value,label_name){
 }
 
 
-# check whether a list of packages exist , if not then install in the local_package_dir
-install_and_load_packages<-function(package_list,local_package_dir){
-  new.packages <- list.of.packages[!(package_list %in% installed.packages()[,"Package"])]
-  if(length(new.packages)) install.packages(new.packages,lib=local_package_dir)
+install_and_load_packages<-function(package_list,local_package_dir,specify_R_package_diretory){
+  
+  
+  new.packages <- package_list[!(package_list %in% installed.packages()[,"Package"])]
+  if(length(new.packages)>0){ 
+    if(specify_R_package_diretory){install.packages(new.packages,lib=local_package_dir,dependencies=TRUE)}else{install.packages(new.packages,dependencies=TRUE)}
+  }
   for(pack in package_list){
+    print(pack)
     library(pack,character.only = T)
   }
+  
 }
+
+Repeat1 <- function(d, n) {
+  return(do.call("rbind", replicate(n, d, simplify = FALSE)))
+}
+
+Repeat2 <- function(d, n) {
+  return(Reduce(rbind, list(d)[rep(1L, times=n)]))
+}
+
+Repeat3 <- function(d, n) {
+  if ("data.table" %in% class(d)) return(d[rep(seq_len(nrow(d)), n)])
+  return(d[rep(seq_len(nrow(d)), n), ])
+}
+

@@ -1,5 +1,12 @@
 # write the script for calculating the between cluster center dihedral distance
 # getting the cluster center of each cluster and calculating the distances
+
+current_d=getwd()
+if(grepl("proline_classifier",current_d)){
+  source("0.load_function_and_data.R")
+  
+}
+
 between_exemplar_distances=list()
 for(each_l in names(data_by_loop_type_list_unduplicated)){
   #get sequences 
@@ -35,7 +42,7 @@ good_ones_chosen=good_ones_chosen[!(grepl("none",good_ones_chosen$query_cluster)
 bad_ones_chosen=bad_ones_chosen[!(grepl("none",bad_ones_chosen$query_cluster)|grepl("none",bad_ones_chosen$template_cluster)),]
 
 
-write.csv("",file="./proline_classifier/Data_processed/this_loop_good.csv")
+write.csv("",file="./Data_processed/this_loop_good.csv")
 
 for(loop in all_loop_types){
   print(loop)
@@ -53,13 +60,13 @@ for(loop in all_loop_types){
   colnames(this_loop_dis_c)=c("query_cluster","template_cluster","dist")
   merged_dis_info=merge(this_loop_good,this_loop_dis_c)
   merged_dis_info_s=merged_dis_info[,c("query_cluster","template_cluster","loop_type","dist")]
-  write.table("good",sep=",",file="./proline_classifier/Data_processed/this_loop_good.csv",append = TRUE)
-  write.table(merged_dis_info_s,sep=",",file="./proline_classifier/Data_processed/this_loop_good.csv",append = TRUE)
+  write.table("good",sep=",",file="./Data_processed/this_loop_good.csv",append = TRUE)
+  write.table(merged_dis_info_s,sep=",",file="./Data_processed/this_loop_good.csv",append = TRUE)
 
 
   merged_dis_info_bad=merge(this_loop_bad,this_loop_dis_c)
   merged_dis_info_bad_s=merged_dis_info_bad[,c("query_cluster","template_cluster","loop_type","dist")]
-  write.table("bad",sep=",",file="./proline_classifier/Data_processed/this_loop_good.csv",append = TRUE)
-  write.table(merged_dis_info_bad_s,sep=",",file="./proline_classifier/Data_processed/this_loop_good.csv",append = TRUE)
+  write.table("bad",sep=",",file="./Data_processed/this_loop_good.csv",append = TRUE)
+  write.table(merged_dis_info_bad_s,sep=",",file="./Data_processed/this_loop_good.csv",append = TRUE)
 }
 

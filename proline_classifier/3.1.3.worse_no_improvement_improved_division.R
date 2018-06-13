@@ -1,5 +1,9 @@
 # categorize the misclassification based on the significance score
-
+current_d=getwd()
+if(grepl("proline_classifier",current_d)){
+  source("0.load_function_and_data.R")
+  
+}
 
 all_error_sig_info=do.call(rbind,lapply(names(all_loop_sig_frame_list),function(y){
   x=all_loop_sig_frame_list[[y]];x$loop=rep(y,dim(x)[1])
@@ -41,9 +45,9 @@ no_improvement_worse=all_error_sig_info[all_error_sig_info$error_count>3 & all_e
 no_improvement_worse=no_improvement_worse[,c("error_count","mean_simu_error","sd","Var1","Var2","significance")]
 names(no_improvement_worse)=c("error_count","mean_simu_error_count","sd","query_cluster","template_cluster","significance")
 names(no_improvement_worse)=c("error_count","mean_simu_error_count","sd","query_cluster","template_cluster","significance")
-file.remove("./proline_classifier/Data_processed/no_improvement_worse.csv")
+file.remove("./Data_processed/no_improvement_worse.csv")
 no_improvement_worse=no_improvement_worse[,c("query_cluster","template_cluster","error_count", "mean_simu_error_count",   "sd","significance")]
-write.csv(no_improvement_worse,file="./proline_classifier/Data_processed/no_improvement_worse.csv")
+write.csv(no_improvement_worse,file="./Data_processed/no_improvement_worse.csv")
 
 
 not_much_improvement=all_error_sig_info[all_error_sig_info$error_count>3 &(all_error_sig_info$sig_id=="insignificant"),]
@@ -52,7 +56,7 @@ not_much_improvement_output=not_much_improvement[,c("error_count","mean_simu_err
 names(not_much_improvement_output)=c("error_count","mean_simu_error_count","sd","query_cluster","template_cluster","significance")
 not_much_improvement_output=not_much_improvement_output[,c("query_cluster","template_cluster","error_count", "mean_simu_error_count",   "sd","significance")]
 
-write.csv(not_much_improvement_output,file="./proline_classifier/Data_processed/not_much_improvement_output.csv")
+write.csv(not_much_improvement_output,file="./Data_processed/not_much_improvement_output.csv")
 
 
 
@@ -61,13 +65,13 @@ improvement_but_still_many_errors=improvement_but_still_many_errors[,c("error_co
 names(improvement_but_still_many_errors)=c("error_count","mean_simu_error_count","sd","query_cluster","template_cluster","significance")
 improvement_but_still_many_errors=improvement_but_still_many_errors[,c("query_cluster","template_cluster","error_count", "mean_simu_error_count",   "sd","significance")]
 
-write.csv(improvement_but_still_many_errors,file="./proline_classifier/Data_processed/improvement_but_still_many_errors.csv")
+write.csv(improvement_but_still_many_errors,file="./Data_processed/improvement_but_still_many_errors.csv")
 
 improvement_and_not_very_much_error=all_error_sig_info[all_error_sig_info$error_count<=3 &(all_error_sig_info$sig_id=="smaller"),]
 improvement_and_not_very_much_error=improvement_and_not_very_much_error[,c("error_count","mean_simu_error","sd","Var1","Var2","significance")]
 names(improvement_and_not_very_much_error)=c("error_count","mean_simu_error_count","sd","query_cluster","template_cluster","significance")
 improvement_and_not_very_much_error=improvement_and_not_very_much_error[,c("query_cluster","template_cluster","error_count", "mean_simu_error_count",   "sd","significance")]
-write.csv(improvement_and_not_very_much_error,file="./proline_classifier/Data_processed/improvement_and_not_very_much_error.csv")
+write.csv(improvement_and_not_very_much_error,file="./Data_processed/improvement_and_not_very_much_error.csv")
 
 improvement_and_not_very_much_error$sig_stat=rep("better than random and little errors",dim(improvement_and_not_very_much_error)[1])
 improvement_but_still_many_errors$sig_stat=rep("better than random but still many errors",dim(improvement_but_still_many_errors)[1])
@@ -76,8 +80,15 @@ no_improvement_worse$sig_stat=rep("worse than random",dim(no_improvement_worse)[
 all_frames_I_care=rbind(rbind(rbind(improvement_and_not_very_much_error,improvement_but_still_many_errors),not_much_improvement_output),no_improvement_worse)
 all_frames_I_care$loop_type=unlist(lapply(strsplit(as.character(all_frames_I_care$query_cluster),"-"),function(x){paste(x[1:2],collapse="-")}))
 all_frames_I_care$sig_stat=factor(all_frames_I_care$sig_stat,levels=c("worse than random","not different than random","better than random but still many errors","better than random and little errors"))
+#generate colors
+n <- 20
+qual_col_pals = brewer.pal.info[brewer.pal.info$category == 'qual',]
+col_vector = unlist(mapply(brewer.pal, qual_col_pals$maxcolors, rownames(qual_col_pals)))
+col_vector=col_vector[c(1:3,5:(n))]
+col_vector=c(col_vector,"#bdbdbd")
+pie(rep(1,n), col=col_vector)
 col_vec=col_vector[1:length(unique(all_frames_I_care$sig_stat))]
-saveRDS(all_frames_I_care,file="./proline_classifier/Data_processed/all_frames_I_care.rds")
+saveRDS(all_frames_I_care,file="./Data_processed/all_frames_I_care.rds")
 
 abc=ggplot(all_frames_I_care, aes(mean_simu_error_count, error_count,colour = factor(sig_stat)))+
   geom_point( position=position_dodge(width = 0.90),size = 2.5)+
@@ -91,6 +102,6 @@ abc=ggplot(all_frames_I_care, aes(mean_simu_error_count, error_count,colour = fa
 save_figure_specific_size(abc,"misclassifications_categorized_by_significance_1.pdf",7,7)
 
 
-
+print(c("plotted ./Plots/misclassifications_categorized_by_significance_1.pdf"))
 
 

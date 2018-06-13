@@ -1,8 +1,9 @@
-library(ggseqlogo)
-require(ggplot2)
-require(reshape2)
-
-
+# This script plot seq logo for CDR loops belonging to some specific clusters 
+current_d=getwd()
+if(grepl("proline_classifier",current_d)){
+  source("0.load_function_and_data.R")
+  
+}
 
 H2_10=data_by_loop_type_list_unduplicated[["H2_10"]][[1]]
 H2_10_split=split(H2_10,H2_10$cluster_type)
@@ -10,14 +11,14 @@ H2_10_split_1=H2_10_split[["H2-10-1"]]
 H2_10_seqs_f=H2_10_split_1[,paste("V",2:11,sep="")]
 H2_10_seqs=sapply(as.data.frame(t(H2_10_seqs_f)),function(x){paste(x,collapse="")})
 H2_10_1=ggseqlogo(H2_10_seqs,method="prob")
-ggsave("./proline_classifier/Plots/H2_10_1.pdf", plot = H2_10_1,
+ggsave("./Plots/H2_10_1.pdf", plot = H2_10_1,
         width = 3.5, height = 2.5, units = c("in"),dpi = 1000)
 
 H2_10_split_1=H2_10_split[["H2-10-2"]]
 H2_10_seqs_f=H2_10_split_1[,paste("V",2:11,sep="")]
 H2_10_seqs=sapply(as.data.frame(t(H2_10_seqs_f)),function(x){paste(x,collapse="")})
 H2_10_2=ggseqlogo(H2_10_seqs,method="prob")
-ggsave("./proline_classifier/Plots/H2_10_2.pdf", plot = H2_10_2,
+ggsave("./Plots/H2_10_2.pdf", plot = H2_10_2,
       width = 3.5, height = 2.5, units = c("in"),dpi = 1000)
 
 
@@ -25,7 +26,7 @@ H2_10_split_1=H2_10_split[["H2-10-6"]]
 H2_10_seqs_f=H2_10_split_1[,paste("V",2:11,sep="")]
 H2_10_seqs=sapply(as.data.frame(t(H2_10_seqs_f)),function(x){paste(x,collapse="")})
 H2_10_6=ggseqlogo(H2_10_seqs,method="prob")
-ggsave("./proline_classifier/Plots/H2_10_6.pdf", plot =H2_10_6,
+ggsave("./Plots/H2_10_6.pdf", plot =H2_10_6,
         width = 3.5, height = 2.5, units = c("in"),dpi = 1000)
 
 
@@ -51,14 +52,14 @@ H2_10_split_1=H2_10_split[["L3-10-none"]]
 H2_10_seqs_f=H2_10_split_1[,paste("V",2:11,sep="")]
 H2_10_seqs=sapply(as.data.frame(t(H2_10_seqs_f)),function(x){paste(x,collapse="")})
 H2_10_1=ggseqlogo(H2_10_seqs,method="prob")
-ggsave("./proline_classifier/Plots/L3_10_none.pdf", plot = H2_10_1,
+ggsave("./Plots/L3_10_none.pdf", plot = H2_10_1,
        width = 3.5, height = 2.5, units = c("in"),dpi = 1000)
 
 H2_10_split_1=H2_10_split[["L3-10-cis8-1"]]
 H2_10_seqs_f=H2_10_split_1[,paste("V",2:11,sep="")]
 H2_10_seqs=sapply(as.data.frame(t(H2_10_seqs_f)),function(x){paste(x,collapse="")})
 H2_10_2=ggseqlogo(H2_10_seqs,method="prob")
-ggsave("./proline_classifier/Plots/L3_10_cis8-1.pdf", plot = H2_10_2,
+ggsave("./Plots/L3_10_cis8-1.pdf", plot = H2_10_2,
        width = 3.5, height = 2.5, units = c("in"),dpi = 1000)
 
 
@@ -66,14 +67,14 @@ H2_10_split_1=H2_10_split[["L3-10-1"]]
 H2_10_seqs_f=H2_10_split_1[,paste("V",2:11,sep="")]
 H2_10_seqs=sapply(as.data.frame(t(H2_10_seqs_f)),function(x){paste(x,collapse="")})
 H2_10_6=ggseqlogo(H2_10_seqs,method="prob")
-ggsave("./proline_classifier/Plots/L3_10_1.pdf", plot =H2_10_6,
+ggsave("./Plots/L3_10_1.pdf", plot =H2_10_6,
        width = 3.5, height = 2.5, units = c("in"),dpi = 1000)
 
 H2_10_split_1=H2_10_split[["L3-10-cis7,8-1"]]
 H2_10_seqs_f=H2_10_split_1[,paste("V",2:11,sep="")]
 H2_10_seqs=sapply(as.data.frame(t(H2_10_seqs_f)),function(x){paste(x,collapse="")})
 H2_10_6=ggseqlogo(H2_10_seqs,method="prob")
-ggsave("./proline_classifier/Plots/L3_10_cis7,8-1.pdf", plot =H2_10_6,
+ggsave("./Plots/L3_10_cis7,8-1.pdf", plot =H2_10_6,
        width = 3.5, height = 2.5, units = c("in"), dpi = 1000)
 
 
@@ -85,14 +86,14 @@ H2_10_split_1=H2_10_split[["L3-9-1"]]
 H2_10_seqs_f=H2_10_split_1[,paste("V",2:10,sep="")]
 H2_10_seqs=sapply(as.data.frame(t(H2_10_seqs_f)),function(x){paste(x,collapse="")})
 H2_10_1=ggseqlogo(H2_10_seqs,method="prob")
-ggsave("./proline_classifier/Plots/L3-9-1.pdf", plot = H2_10_1,
+ggsave("./Plots/L3-9-1.pdf", plot = H2_10_1,
        width = 3.5, height = 2.5, units = c("in"),dpi = 1000)
 
 H2_10_split_1=H2_10_split[["L3-9-2"]]
 H2_10_seqs_f=H2_10_split_1[,paste("V",2:10,sep="")]
 H2_10_seqs=sapply(as.data.frame(t(H2_10_seqs_f)),function(x){paste(x,collapse="")})
 H2_10_1=ggseqlogo(H2_10_seqs,method="prob")
-ggsave("./proline_classifier/Plots/L3-9-2.pdf", plot = H2_10_1,
+ggsave("./Plots/L3-9-2.pdf", plot = H2_10_1,
        width = 3.5, height = 2.5, units = c("in"),dpi = 1000)
 
 
@@ -100,7 +101,7 @@ H2_10_split_1=H2_10_split[["L3-9-cis7-1"]]
 H2_10_seqs_f=H2_10_split_1[,paste("V",2:10,sep="")]
 H2_10_seqs=sapply(as.data.frame(t(H2_10_seqs_f)),function(x){paste(x,collapse="")})
 H2_10_2=ggseqlogo(H2_10_seqs,method="prob")
-ggsave("./proline_classifier/Plots/L3-9-cis7-1.pdf", plot = H2_10_2,
+ggsave("./Plots/L3-9-cis7-1.pdf", plot = H2_10_2,
        width = 3.5, height = 2.5, units = c("in"),dpi = 1000)
 
 
@@ -108,7 +109,7 @@ H2_10_split_1=H2_10_split[["L3-9-cis7-2"]]
 H2_10_seqs_f=H2_10_split_1[,paste("V",2:10,sep="")]
 H2_10_seqs=sapply(as.data.frame(t(H2_10_seqs_f)),function(x){paste(x,collapse="")})
 H2_10_6=ggseqlogo(H2_10_seqs,method="prob")
-ggsave("./proline_classifier/Plots/L3-9-cis7-2.pdf", plot =H2_10_6,
+ggsave("./Plots/L3-9-cis7-2.pdf", plot =H2_10_6,
        width = 3.5, height = 2.5, units = c("in"),dpi = 1000)
 
 
@@ -116,12 +117,12 @@ H2_10_split_1=H2_10_split[["L3-9-cis7-3"]]
 H2_10_seqs_f=H2_10_split_1[,paste("V",2:10,sep="")]
 H2_10_seqs=sapply(as.data.frame(t(H2_10_seqs_f)),function(x){paste(x,collapse="")})
 H2_10_6=ggseqlogo(H2_10_seqs,method="prob")
-ggsave("./proline_classifier/Plots/L3-9-cis7-3.pdf", plot =H2_10_6,
+ggsave("./Plots/L3-9-cis7-3.pdf", plot =H2_10_6,
        width = 3.5, height = 2.5, units = c("in"),dpi = 1000)
 
 H2_10_split_1=H2_10_split[["L3-10-cis7,8-1"]]
 H2_10_seqs_f=H2_10_split_1[,paste("V",2:11,sep="")]
 H2_10_seqs=sapply(as.data.frame(t(H2_10_seqs_f)),function(x){paste(x,collapse="")})
 H2_10_6=ggseqlogo(H2_10_seqs,method="prob")
-ggsave("./proline_classifier/Plots/L3_10_cis7,8-1.pdf", plot =H2_10_6,
+ggsave("./Plots/L3_10_cis7,8-1.pdf", plot =H2_10_6,
        width = 3.5, height = 2.5, units = c("in"), dpi = 1000)

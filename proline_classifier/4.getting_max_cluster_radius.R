@@ -1,3 +1,10 @@
+# set the maximum number of cluster radius of be 
+
+current_d=getwd()
+if(grepl("proline_classifier",current_d)){
+  source("0.load_function_and_data.R")
+  
+}
 all_the_max_distances=list()
 
 for(loop_n in names(data_by_loop_type_list_unduplicated)){

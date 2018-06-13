@@ -1,4 +1,10 @@
+# this script get an overall accuracy from all the loops for both GBM and blindBLAST for comparison
 
+current_d=getwd()
+if(grepl("proline_classifier",current_d)){
+  source("0.load_function_and_data.R")
+  
+}
 
 blindBLAST=do.call(rbind,conf_tables_all_loops_blindBLAST)
 gbm=do.call(rbind,conf_tables_all_loops_gbm)
