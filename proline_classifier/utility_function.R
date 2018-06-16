@@ -143,6 +143,11 @@ save_figure_specific_size<-function(plots_list,file_name,inch_width,inch_height)
 save_file<-function(var_name){
   saveRDS(get(var_name),file=paste(c(result_dir,var_name,".rds"),collapse=""))
 }
+save_file_sp<-function(var_name,dir,file_names_s){
+  file_name_s=paste(c(dir,file_names_s,".rds"),collapse="")
+  print(file_name_s)
+  saveRDS(get(var_name),file=file_name_s)
+}
 
 calculate_accuracy<-function(data_f,def_col_names,freq_col_name){
   diff=sum(unlist(data_f[as.character(data_f[,def_col_names[1]])!=as.character(data_f[,def_col_names[2]]),freq_col_name]))
