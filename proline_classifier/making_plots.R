@@ -77,32 +77,6 @@ blind_blast_cv_result_summary_reordered_selected$method=rep("blindBLAST",dim(bli
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-#colnames(random_acc_sd_reordered)[1:2]=c("mean","sd")
-#random_acc_sd_reordered$method=rep("random",dim(random_acc_sd_reordered)[1])
-
-# combine blindBLAST result and that of random assignment 
-combined_blindBLAST_random=as.data.frame(rbind(blind_blast_cv_result_summary_reordered_selected,random_acc_sd_reordered))
-combined_blindBLAST_random$sd=as.numeric(combined_blindBLAST_random$sd)
-combined_blindBLAST_random$mean=as.numeric(combined_blindBLAST_random$mean)
-combined_blindBLAST_random$min=combined_blindBLAST_random$mean-combined_blindBLAST_random$sd/2
-combined_blindBLAST_random$max=combined_blindBLAST_random$mean+combined_blindBLAST_random$sd/2
-save_file("combined_blindBLAST_random")
-
-
-
-
-
 conf_tables_all_loops_blindBLAST
 conf_tables_all_loops_gbm
 accuracy_list=list(); 
@@ -154,6 +128,7 @@ fig=ggplot(accuracy_sd_gbm_blast_remove_unknow_melt,aes(x=length,y=value,ymin = 
   xlab("")+facet_grid(~loop,scales="free",space="free")+
   theme(text = element_text(size=11), axis.text.x = element_text(angle=90, hjust=1),axis.text.y = element_text(angle=90, hjust=1)) 
 
+save_figure_specific_size(fig,"gbm_BLAST_accuracy_and_error_count.pdf",7,7)
 
 
 

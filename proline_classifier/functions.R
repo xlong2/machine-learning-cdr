@@ -1884,6 +1884,7 @@ cal_blindBLAST_accuracy <- function(ten_foldcv_blindblastlist, n_folds) {
   print(conf_tables_all_loops_blindBLAST_diff)
   saveRDS(conf_tables_all_loops_blindBLAST,file=paste(c(result_dir,"/","conf_tables_all_loops_blindBLAST.rds"),collapse=""))
    saveRDS(conf_tables_all_loops_blindBLAST_diff,file=paste(c(result_dir,"/","conf_tables_all_loops_blindBLAST_diff.rds"),collapse=""))
+   saveRDS(blindBLAST_errorcount_lists,file=paste(c(result_dir,"/","blindBLAST_errorcount_lists.rds"),collapse=""))
   return(summary_info)
 }
 
@@ -2043,8 +2044,65 @@ cal_GBM_accuracy <-
     ), collapse = ""))
     saveRDS(gbm_folds_sd, file = paste(c(result_dir, "/", "gbm_folds_sd.rds"), collapse =
                                          ""))
+    saveRDS(gbm_errorcount_list, file = paste(c(result_dir,"/","gbm_errorcount_list.rds"),collapse=""))
     result_f = data.frame(mean = unlist(gbm_accuracy_by_loops),
                           sd = unlist(gbm_sd_by_loops))
     return(result_f)
   }
 
+
+
+
+
+process_error_counts<-function(conf_tables_all_loops_blindBLAST_diff,conf_tables_all_loops_gbm_diff){
+  
+  
+error_count_list=list(); 
+gbm_errorcount_list
+blindBLAST_errorcount_lists
+for(x_loop in names(conf_tables_all_loops_blindBLAST_diff)){
+  print(x_loop)
+  bl=conf_tables_all_loops_blindBLAST_diff[[x_loop]]
+  values_bl=bl[as.character(bl$Var1)!=as.character(bl$Var2),"Freq"];
+  if(!is.null(values_bl)){
+    print(sum(values_bl))
+    error_count_list[["blindBLAST"]][[x_loop]]=sum(values_bl)
+  }else{
+    error_count_list[["blindBLAST"]][[x_loop]]=NA
+  }
+  bgm=conf_tables_all_loops_gbm_diff[[x_loop]]
+  values_gbm=bgm[as.character(bgm$Var1)!=as.character(bgm$Var2),"Freq"];
+  if(!is.null(values_gbm)){
+    print(sum(values_gbm))
+    error_count_list[["gbm"]][[x_loop]]=sum(values_gbm)
+  }else{
+    error_count_list[["gbm"]][[x_loop]]=NA
+  }
+}
+error_count_list_with_sd=list()
+t1=as.data.frame(error_count_list[["blindBLAST"]])
+t1$loops=rownames(t1)
+t2=as.data.frame(t(as.data.frame(lapply(blindBLAST_errorcount_lists,sd)))); t2$loops=rownames(t2)
+fr1=merge(t1,t2,by="loops")
+colnames(fr1)=c("loop","error_count","sd")
+rownames(fr1)=fr1$loop
+
+t1=as.data.frame(error_count_list[["gbm"]])
+t1$loops=rownames(t1)
+t2=as.data.frame(t(as.data.frame(lapply(gbm_errorcount_list,sd)))); t2$loops=rownames(t2)
+fr2=merge(t1,t2,by="loops")
+colnames(fr2)=c("loop","error_count","sd")
+rownames(fr2)=fr2$loop
+common_n=intersect(rownames(fr1),rownames(fr2)); fr1=fr1[rownames(fr1)%in%common_n,]; fr2=fr2[rownames(fr2)%in%common_n,]
+error_count_list_with_sd[[1]]=fr1
+error_count_list_with_sd[[2]]=fr2
+names(error_count_list_with_sd)=c("blindBLAST","gbm")
+
+error_count_list_frame=do.call(rbind,lapply(names(error_count_list_with_sd),frame_for_plot))
+colnames(error_count_list_frame)=c("loop","value","sd","length","variable")
+
+figure_error_count=plot_figure(error_count_list_frame,"length","value","variable","loop",c(0.9,0.9))
+error_count_list_frame$low=error_count_list_frame$value-error_count_list_frame$sd/2
+error_count_list_frame$high=error_count_list_frame$value + error_count_list_frame$sd/2
+
+}
