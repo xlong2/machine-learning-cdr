@@ -1,27 +1,16 @@
-# getting result of blindBLAST in 3 repeat 10 fold cv
-# Getting rmsds of blindBLAST template vs query CDR
-# need to use generate_training_grids.R for passing parameters
-# this script generate machine learning model parameters and launch jobs for training models in parallel
-# pass arguments for how many cores available for computation. 
-# user should store the data file in the same directory
-# load all the functions
 
 #!/usr/bin/env Rscript
-# Copyright 2012-2013 Trevor L Davis <trevor.l.davis@gmail.com>
-# Copyright 2008 Allen Day
-#
-#  This file is free software: you may copy, redistribute and/or modify it
-#  under the terms of the GNU General Public License as published by the
-#  Free Software Foundation, either version 2 of the License, or (at your
-#  option) any later version.
-#
-#  This file is distributed in the hope that it will be useful, but
-#  WITHOUT ANY WARRANTY; without even the implied warranty of
-#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-#  General Public License for more details.
-#
-#  You should have received a copy of the GNU General Public License
-#  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+# Copyright 2018 Xiyao Long <xlong2@jhu.edu>
+  
+#  Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files, to deal 
+#  in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
+#  the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+#  The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+#  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS 
+# FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+
 suppressPackageStartupMessages(library("argparse"))
 
 # create parser object
@@ -134,7 +123,7 @@ for (loop_type in left_loops) {
 
 
 save_file("ten_foldcv_blindblastlist")
-
+ten_foldcv_blindblastlist=readRDS('./Data_dir/ten_foldcv_blindblastlist.rds')
 
 
 
@@ -166,5 +155,7 @@ results_rbind_allloops=lapply(ten_foldcv_blindblastlist,function(each_r){
 
 blindBLAST_summ=cal_blindBLAST_accuracy(ten_foldcv_blindblastlist,n_folds)
 print(blindBLAST_summ)  
+save_file("blindBLAST_summ")
+
 # calculate accuracies for blindBLAST for each repeat
 # calculate the std for accuracies for each repeat

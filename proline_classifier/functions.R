@@ -113,6 +113,69 @@ runblast_and_retrive_rmsd <-function( seq,each_fold,member_seqs_pdbs,db_name){
   return(list(returned_id,choice_index-1) )
 }
 
+
+runblast_and_retrive_rmsd_final <-function( seq,each_fold,member_seqs_pdbs,db_name){
+  #the blastdbase is the directory of the database
+  print(the_method)
+  print(loop_type)
+  print(features)
+  print(cluster_dis)
+  print(db_name)
+  
+  out_file = paste(c("./blast/blast_his_file_need_to_parse_",loop_type,the_method,cluster_dis,each_fold,".txt"),collapse = "")  # the file to record hits result
+  file.remove(out_file);
+  testing_seq_vec = apply(seq[, features] , 1 , paste , collapse = "")  # turn the query dataframe into strings
+  file = paste(c("./blast/testing_file_wont_check_again_",loop_type,the_method,cluster_dis,each_fold,".txt"),collapse=""); file.remove(file)
+  write(paste(">", seq$identifier, collapse = ""), file, append =TRUE)
+  write(testing_seq_vec[[1]], file, append = TRUE)      #write the sequence of the predicted
+  find_flag=FALSE
+  choice_index=1
+  choices=c("PAM30","BLOSUM62")
+  while(!find_flag){
+    print("inside while")
+    # remove(hit)
+    if(choice_index!=3){
+      sub_choice=choices[[choice_index]]
+      command = paste(
+        c(
+          'blastp' ,
+          " -db ",
+          db_name,
+          " -query ",
+          file ,
+          " -out" ,
+          out_file ,
+          "-outfmt 6 -word_size 2  -max_target_seqs 1024 -num_threads 4 ",
+          '  -evalue 2000 -matrix ',
+          "PAM30"
+        ),
+        collapse = " "
+      )
+      system(command)
+      tryCatch({
+        hit = read.table(out_file, stringsAsFactors = FALSE)
+        find_flag=TRUE
+        print(c("find flag now is ",find_flag))
+        returned_id=hit[1,"V2"]
+      },error=function(e){},finally = {
+        print(find_flag)
+      }  )#this table contains all the result of sequences and and the sequence corresponded hits
+      choice_index=choice_index+1
+    }else{
+      identifier=seq$identifier
+      returned_id=NA
+      find_flag=TRUE
+
+      choice_index=choice_index+1
+    }
+  }
+  
+  return(list(returned_id,choice_index-1) )
+}
+
+
+
+
 # make data division for k folds and r repeats croo validation
 make_3_10_cross_val<-function(training_cases,r,k){
   
@@ -206,6 +269,43 @@ get_accuracy_per_fold<-function(each_fold){
   }# end of iterating through the fold out cases for a single fold 
   return(rmsd_list)
 } 
+
+
+
+
+
+
+get_accuracy_per_fold_overload_final<-function(each_fold){
+  # get reference database
+
+  print(c("the each_fold is ",each_fold))
+  #print(folds.list.out)
+  print(each_fold)
+  member_seqs=sequences[folds.list[[each_fold]],]
+  fold_out_cases= sequences[folds.list.out[[each_fold]],]
+  returned_db = make_reference_database_with_f(member_seqs,each_fold,features) #construct a blast database with the predicted cluster and find the best three hits , extract their rmsd
+  member_seqs_pdbs=(member_seqs$identifier)
+  rmsd_list=data.frame(matrix(nrow=dim(fold_out_cases)[1],ncol=3))
+  
+  for(each_ind in 1:dim(fold_out_cases)[1]){
+    #tryCatch({
+    seq=fold_out_cases[each_ind,]
+    case_id = seq["identifier"]
+    
+    found_template= runblast_and_retrive_rmsd_final( seq,each_fold,member_seqs_pdbs,returned_db[[1]])
+
+    rmsd_list[each_ind,1:3]=c(as.character(case_id),as.character(found_template[[1]]),found_template[[2]])
+  }# end of iterating through the fold out cases for a single fold 
+  
+  system(paste(c("mv ", returned_db[[1]], "* " , "./garbage/"),collapse=""))   
+  
+  
+  return(rmsd_list)
+} 
+
+
+
+
 
 
 
@@ -1048,10 +1148,9 @@ generic_train<-function(each_loop_length_data_feature_string_rmsd,each_method,tr
   
 
   set.seed(sample(1:100000,1))
-  r <-3 # number of repeats
-  k <- 10 # number of folds
-  if(loop_type %in% c("H1_13", "H2_10", "L3_9" ) && n.trees>=1000 ){
-    r=1}
+  r <-n_repeats # number of repeats
+  k <- n_folds # number of folds
+
   returned_results=make_3_10_cross_val(training_cases,r,k)  # make division
   folds_spec=returned_results[[1]]
   training_cases=returned_results[[2]]   # the training cases would have its mo
@@ -1085,7 +1184,7 @@ generic_train<-function(each_loop_length_data_feature_string_rmsd,each_method,tr
   
 }
 
-convert_none<-function(model_re,blindBLAST_unique_clusters){
+convert_none<-function(model_re,blindBLAST_unique_clusters,loop){
   obs=gsub("_","-",as.character(model_re$obs))
   pred=gsub("_","-",as.character(model_re$pred))
   
@@ -1144,19 +1243,26 @@ train_final_model<-function(each_loop_length_data_feature_string_rmsd,each_metho
 }
 
 # get accuracy from blindBLAST result with consideration of the n-cv-m-repeats scheme
-get_conf_from_blindBLAST<-function(model_re_com,unique_cluster,repeats){
+get_conf_from_blindBLAST<-function(model_re_com,unique_cluster,repeats,loop){
+  print(model_re_com)
+  print("line 1248")
   model_re_com[,1]=sapply(strsplit(model_re_com[,1],"\\."),"[[",1)
   model_re_com[,2]=sapply(strsplit(model_re_com[,2],"\\."),"[[",1)
+  print("line 1251")
   which_1=which(!model_re_com[,1]%in%unique_cluster)
+  print("line 1253")
   model_re_com[which_1,1]=rep(paste(c(strsplit(loop,"_")[[1]],"none"),collapse="-"),length(which_1))
-  which_2=which(!model_re_com[,2]%in%unique_cluster)
-  model_re_com[which_2,2]=rep(paste(c(strsplit(loop,"_")[[1]],"none"),collapse="-"),length(which_2))
-  
+  print("line 1255")
+    which_2=which(!model_re_com[,2]%in%unique_cluster)
+  print("line 1257")
+      model_re_com[which_2,2]=rep(paste(c(strsplit(loop,"_")[[1]],"none"),collapse="-"),length(which_2))
+  print("line 1259")
   
   conf_t=as.data.frame(table(model_re_com[,1],model_re_com[,2]))
   conf_t$Freq=conf_t$Freq/repeats
   accuracy_result=sum(conf_t[as.character(conf_t$Var1)==as.character(conf_t$Var2),"Freq"])/sum(conf_t[,"Freq"])
-  
+  print("line 1264")
+    
   return(accuracy_result)
 }
 
@@ -1173,6 +1279,23 @@ generate_Rscript_command<-function(args,Rscript_dir,Rscript_n){
   write(Rscript_command_line, file = exe_sh_file,append=TRUE )
   return(exe_sh_file)
 }
+
+
+
+generate_Rscript_command_with_function<-function(args,Rscript_dir){
+  
+  args=unlist(lapply(args,as.character))
+  executable=paste(args, collapse="_")
+  
+  exe_sh_file=paste(c(Rscript_dir,executable,"exe.sh"),collapse="_")  # customize shell script name
+  Rscript_command_line=paste(c("Rscript ", Rscript_n,paste(args,collapse=" ")),collapse=" ")    # write shell script
+  # write("cd ..", file = exe_sh_file,append=TRUE )
+  write(Rscript_command_line, file = exe_sh_file,append=TRUE )
+  return(exe_sh_file)
+}
+
+
+
 
 generate_Rscript_command_H1<-function(args,Rscript_dir,Rscript_n){
   
@@ -1258,11 +1381,7 @@ execute_training_rscript<-function(args_list){   # function for
   
 #  data_by_loop_type_list_unduplicated=args_list[[2]]
   getwd()
-print('line 1129')
-  # specify parameter as the args 
-  print(args)
-  print(args[[2]])
-  print(args[2])
+
   loop_type=as.character(args[[1]])
   num_core=as.numeric(args[[2]])
   interaction.depth=as.numeric(args[3])
@@ -1282,11 +1401,11 @@ print('line 1129')
   parameter_spe = paste(unlist(gbmGrid),collapse="-")
   each_method="gbm_test"
   cluster_dis="north"
-  gbm_result_dir=paste(c("./rmsd_cluster_hits_rmsd/"),collapse="")   # build a subdirectory in the current directory to store trained models
+  gbm_result_dir=paste(c(gbm_models_dir),collapse="")   # build a subdirectory in the current directory to store trained models
   print("line 1150")
   
-  to_save_file=paste(c(gbm_result_dir,"",loop_type,"_",paste(c(each_method,cluster_dis,parameter_spe),collapse="-"),"_trained_model_extra_test.rds"),collapse="")
-  
+  to_save_file=paste(c(gbm_result_dir,"/",loop_type,"_",paste(c(each_method,cluster_dis,parameter_spe),collapse="-"),"_trained_model_extra_test.rds"),collapse="")
+  print(to_save_file)
   # read pyigclassify file 
   print(getwd())
 
@@ -1304,14 +1423,16 @@ print('line 1129')
       
       trained_model = generic_train(each_loop_length_data_feature_string,each_method,all_cases,gbmGrid,loop_type) 
       print("line 1168")
-      
-      saveRDS(trained_model,file =to_save_file)
       print(to_save_file)
+      saveRDS(trained_model,file =to_save_file)
+      print(c("model file saved as ",to_save_file))
 
       
       
     }
 }
+
+
 
 
 
@@ -1387,15 +1508,15 @@ execute_training_rscript_comp<-function(args_list){   # function for
 
 
 # load some naming variables into the script environment 
-specify_variable_names<-function(cur_dire){
+specify_variable_names<-function(cur_dire,data_dir,plot_dir,data_table_file){
   #the_method="blindblast_just_get_alignment"
   cluster_dis="north"
   subsitution_matrix_name ="wahtw"  #"/Volumes/lab/macbook/lab_work_data/vall_rmsd/loop_sub_matrix.csv"
   subsitution_matrix="PAM30"
   current_d=getwd()
-  if(!grepl(cur_dire, current_d)){result_dir = paste(c("./",cur_dire,"/Data_processed/"),collapse="");
-  overall_prefix=paste(c("./",cur_dire,"/Data_processed/"),collapse=""); plot_dir=paste(c("./",cur_dire,"/Plots/"),collapse="")
-  }else{result_dir = "./Data_processed/";  plot_dir="./Plots/"; overall_prefix="./Data_processed";
+  if(!grepl(cur_dire, current_d)){result_dir = paste(c("./",cur_dire,"/",data_dir,"/"),collapse="");
+  overall_prefix=paste(c("./",cur_dire,"/",data_dir,"/"),collapse=""); plot_dir=paste(c("./",cur_dire,"/Plots/"),collapse="")
+  }else{result_dir = paste(c("./",data_dir,"/"),collapse="");  plot_dir=paste(c("./",plot_dir,"/"),collapse = ""); overall_prefix=paste(c("./",data_dir),collapse="");
  }
   mkcommand=paste(c("mkdir ",result_dir), collapse=" ")
   system(mkcommand)
@@ -1404,7 +1525,7 @@ specify_variable_names<-function(cur_dire){
   each_method=the_method
   
   # end of iterating all folds
-  file=paste(c(overall_prefix,"/data_by_loop_type_list_unduplicated_for_blindBLAST.rds"),collapse = "")
+  file=paste(c(overall_prefix,"/",data_table_file,".rds"),collapse = "")
   data(AAPAM30)
   #AAPAM30_index=1:20
   #names(AAPAM30_index)=rownames(AAPAM30)
@@ -1501,4 +1622,429 @@ write_list_into_single_csv_sp<-function(table_list,output_file){
     count=count+1
   }
 }
+
+
+read_in_data<-function(file_name){
+  d_table=read.table(file_name,header=TRUE)
+  if(!all(c("CDR","length","cluster_type", "seq") %in% names(d_table))){
+    print("Not enough information")
+    stop()
+  }else if(!"identifier"%in% names(d_table)){
+    d_table$identifier=paste(d_table$cluster_type,rownames(d_table),sep=".")
+  }
+  # check for feature length
+  d_table$type_length=paste(d_table$CDR,d_table$length,sep="_")
+  d_table_s=split(d_table,d_table$type_length)
+  d_table_s_listed=lapply(d_table_s,function(single_d_table){
+      feature_splitted=as.data.frame(do.call(rbind,apply(single_d_table,1,function(x){sp_c=as.list(strsplit(x[["seq"]],"")[[1]]);  })))
+      feature_s=cbind(single_d_table,feature_splitted)
+      return(feature_s)})
+  data_list=lapply(names(d_table_s_listed),function(x){
+     this_data_list=list()
+     this_data_list[[1]]=d_table_s_listed[[x]]
+     this_data_list[[4]]= grep("V",names(d_table_s_listed[[x]]),value = TRUE)
+     this_data_list[[2]]= as.formula(paste("cluster_type ~ ",paste(this_data_list[[4]], collapse="+")))
+     return(this_data_list)
+   })
+  names(data_list)=names(d_table_s_listed)
+  return(data_list)
+}
+
+
+gbm_train_script<-function(args){
+  print("line 4")
+  
+  # load the environment 
+  currect_d=getwd()
+  print(c("current directory is ",currect_d))
+#  source("functions.R")
+#  source("utility_function.R")
+  cw=getwd()
+  print(paste(c("current working directory is ",cw),collapse="  "))
+  data_by_loop_type_list_unduplicated=readRDS(data_save_f)
+  
+  # load required packages 
+  
+  args_list=list()
+  args_list[[1]]=args
+  args_list[[2]]=data_by_loop_type_list_unduplicated
+  
+  execute_training_rscript(args_list)
+}
+
+
+
+
+get_best_para<-function(all_result){
+  print("line 1679")
+  all_gird_search_results = list();
+  
+  col_names=  c(
+    "branch_level",
+    "trees",
+    "shrinkage",
+    "min_node",
+    "accuracy",
+    "accuracy_sd"
+  )
+  print("line 1690")
+  result_table = data.frame(matrix(nrow = length(names( all_result)), ncol = length(col_names)))
+  colnames(result_table) = col_names
+  rownames(result_table) = names(all_result)
+  best_parameters_each_loop=list()
+  for (each_loop in names(all_result)) {
+    all_gird_search_results[[each_loop]] = all_result[[each_loop]]
+    
+    # do a plot
+    x = unique(all_gird_search_results[[each_loop]]$n.trees)
+    y = sort(unique(all_gird_search_results[[each_loop]]$interaction.depth))
+    z = matrix(nrow = length(x), ncol = length(y))
+    z = as.data.frame(z)
+    
+    rownames(z) = x
+    colnames(z) = y
+    # only select the mino equal to 5
+    sub_table = all_gird_search_results[[each_loop]]
+    for (ind in 1:dim(sub_table)[1]) {
+      z[as.character(sub_table[ind, "n.trees"]), as.character(sub_table[ind, "interaction.depth"])] =
+        sub_table[ind, "Accuracy"]
+    }
+    
+    
+    max_indses = which(all_gird_search_results[[each_loop]]$Accuracy == max(all_gird_search_results[[each_loop]]$Accuracy))
+    max_indses_index = which(all_gird_search_results[[each_loop]][max_indses, "Kappa"] ==
+                               max(all_gird_search_results[[each_loop]][max_indses, "Kappa"]))
+    final_max_ind = max_indses[max_indses_index]
+    if (length(final_max_ind) != 1) {
+      which_i = which(all_gird_search_results[[each_loop]][final_max_ind, "n.trees"] ==
+                        min(all_gird_search_results[[each_loop]][final_max_ind, "n.trees"]))
+      final_max_ind = final_max_ind[which_i]
+      if (length(final_max_ind) != 1) {
+        which_i = which(all_gird_search_results[[each_loop]][final_max_ind, "interaction.depth"] ==
+                          min(all_gird_search_results[[each_loop]][final_max_ind, "interaction.depth"]))
+        final_max_ind = final_max_ind[which_i]
+        
+      }
+      
+    }
+    
+    parameters = rownames(all_gird_search_results[[each_loop]])[final_max_ind]
+    parameters = t(data.frame(strsplit(as.character(parameters), "-")))
+    
+    result_table[each_loop, c("branch_level", "trees", "shrinkage", "min_node")] =
+      parameters
+    result_table[each_loop, c("accuracy", "accuracy_sd")] = all_gird_search_results[[each_loop]][final_max_ind, c("Accuracy", "AccuracySD")]
+    best_parameters_each_loop[[each_loop]] = parameters
+    # slice3D(all_gird_search_results[[each_loop]]$n.trees, all_gird_search_results[[each_loop]]$shrinkage, all_gird_search_results[[each_loop]]$interaction.depth,colvar=all_gird_search_results[[each_loop]]$Accuracy)
+    #  M <- mesh(all_gird_search_results[[each_loop]]$n.trees, all_gird_search_results[[each_loop]]$shrinkage, all_gird_search_results[[each_loop]]$interaction.depth)
+  }
+  
+  rownames(result_table) = split_vector_and_replace(rownames(result_table), "_", 1, 2, "-")
+  result_table = result_table[order(order_factor_by_two_component(rownames(result_table), "-", 1, 2),  rownames(result_table)), ]
+  write.csv(
+    result_table,
+    file = paste(result_dir, "best_parameters.csv"),
+    row.names = TRUE,
+    col.names  = TRUE
+  )
+  best_parameters_each_loop=lapply(best_parameters_each_loop,function(x){
+    print(x)
+    x=as.data.frame(x)
+    x=lapply(x,as.character)
+    names(x)=c("interaction.depth","n.trees","eta","n.minobsinnode")
+    x=as.data.frame(x)
+    return(x)
+  })
+  print(result_table)
+  return_list=list()
+  return_list[[1]]=result_table
+  return_list[[2]]=best_parameters_each_loop
+  return(return_list)
+}
+
+
+
+
+generate_arguments <- function(loop, total_max_core, complexity, trees, eta, min_node_n) {
+  cores = 1
+  argument_table = data.frame(expand.grid(loop, cores, complexity, trees, eta, min_node_n))
+  
+  cores = ceiling(total_max_core / dim(argument_table)[1])
+  argument_table = data.frame(expand.grid(loop, cores, complexity, trees, eta, min_node_n))
+  
+  argument_table[, 2:6] = lapply(argument_table[, 2:6], as.numeric)
+  arguments = as.data.frame(do.call(cbind, apply(argument_table, 1, as.list)))
+  return(arguments)
+}
+
+
+cal_blindBLAST_accuracy <- function(ten_foldcv_blindblastlist, n_folds) {
+  #ten_foldcv_blindblastlist
+  conf_tables_all_loops_blindBLAST = list()
+  conf_tables_all_loops_blindBLAST_diff = list()
+  new_accuracy_list = list()
+  blindBLAST_errorcount_lists = list()
+  
+  all_folds_sd_list = list()
+  for (loop in names(ten_foldcv_blindblastlist)) {
+    print("line 1781")
+    print(loop)
+    model_re = ten_foldcv_blindblastlist[[loop]]
+    model_re_by_repeats = lapply(chunk2(1:length(model_re), 3), function(x) {
+      do.call(rbind, model_re[x])})
+    print("line 1786")
+    n_repeats = ceiling(length(model_re) %/% n_folds)
+    print(length(model_re))
+    print(n_repeats)
+    print("line 1790")
+    unique_cluster = gsub("\\*",  "none",  unique(data_by_loop_type_list_unduplicated[[loop]][[1]]$cluster_type))
+    re_by_repeats = lapply(model_re_by_repeats, function(x) {
+     # get_conf_from_blindBLAST(x, unique_cluster, 1)
+      print("line 1791")
+      print(x)
+      conf_t_r = as.data.frame(table(sapply(strsplit(x[, 1], "\\."), "[[", 1), 
+                                     sapply(strsplit(x[, 2], "\\."), "[[", 1)))  })
+    error_by_repeats = lapply(re_by_repeats, function(x) {
+      x = as.data.frame(x)
+      error_c = x[as.character(x[, 1]) != as.character(x[, 2]), ]
+      sum(error_c$Freq) })
+    
+    blindBLAST_errorcount_lists[[loop]] = unlist(error_by_repeats)
+    
+    frame = re_by_repeats[[1]]
+    for (ind in 2:(length(re_by_repeats))) {
+      print(re_by_repeats[[ind]])
+      frame = as.data.frame(merge(frame, re_by_repeats[[ind]], by = c("Var1", "Var2")))   }
+    
+    this_loop_acc_by_repeats = lapply(3:dim(frame)[2], function(x) {
+      sum(frame[as.character(frame[, 1]) == as.character(frame[, 2]), x]) / sum(frame[, x])
+    })
+    accuracy_av = mean(unlist(this_loop_acc_by_repeats))
+    sd_by_repeats = sd(unlist(this_loop_acc_by_repeats))
+    
+    each_classification_sds = apply(frame, 1, function(x) {
+      sd(unlist(x[3:5]))   })
+    sd_f = cbind(frame[, 1:2], each_classification_sds)
+    #individual accuracy
+    all_folds_acc = unlist(lapply(model_re, function(ind_re) {
+      get_conf_from_blindBLAST(ind_re, unique_cluster, 1,loop) }))
+    all_folds_acc = all_folds_acc[!is.na(all_folds_acc)]
+    all_folds_sd_list[[loop]] = sd(all_folds_acc)
+    # total accu
+    
+    model_re_com = do.call(rbind, model_re)
+    
+    accuracy_result = get_conf_from_blindBLAST(model_re_com, unique_cluster, n_repeats,loop)
+    new_accuracy_list[[loop]] = accuracy_result
+    print(loop)
+    
+    conf_t = as.data.frame(table(sapply(
+      strsplit(model_re_com[, 1], "\\."), "[[", 1
+    ), sapply(
+      strsplit(model_re_com[, 2], "\\."), "[[", 1
+    )) / n_repeats)
+    conf_t = merge(conf_t, sd_f, by = c("Var1", "Var2"))
+    conf_tables_all_loops_blindBLAST[[loop]] = conf_t
+    
+    conf_t = conf_t[conf_t$Freq > 0 &
+                      as.character(conf_t[, 1]) != as.character(conf_t[, 2]),]
+    conf_tables_all_loops_blindBLAST_diff[[loop]] = conf_t
+  }
+  conf_tables_all_loops_blindBLAST_diff
+  
+  blindblast_by_loop = lapply(ten_foldcv_blindblastlist, function(x) {
+    if (n_repeats > 1) {
+      split_c = chunk2(1:length(x), n_repeats)
+    } else{
+      split_c = list()
+      split_c[[1]] = 1:length(x)
+    }
+    lapply(split_c, function(y) {
+      do.call(rbind, x[y])
+    })
+  })
+  blindblast_by_loop_bind = lapply(blindblast_by_loop, function(x) {
+    accuracies = lapply(x, function(y) {
+      all = y
+      all[, 1] = split_vector_and_replace(all[, 1], "\\.", 1, 1, "")
+      all[, 2] = split_vector_and_replace(all[, 2], "\\.", 1, 1, "")
+      accu = dim(all[all[, 1] == all[, 2], ])[1] / dim(all)[1]
+    })
+    accuracies = unlist(accuracies)
+    
+  })
+  
+  blindBLAST_mean_accu = lapply(blindblast_by_loop_bind, mean)
+  saveRDS(blindBLAST_mean_accu,file=paste(c(result_dir,"/","blindBLAST_mean_accu.rds"),collapse=""))
+  blindBLAST_accu_std = lapply(blindblast_by_loop_bind, sd)
+  saveRDS(blindBLAST_accu_std,file=paste(c(result_dir,"/","blindBLAST_accu_std.rds"),collapse=""))
+  saveRDS(all_folds_sd_list,file=paste(c(result_dir,"/","all_folds_sd_list.rds"),collapse=""))
+  summary_info = as.data.frame(cbind(unlist(blindBLAST_mean_accu), unlist(blindBLAST_accu_std)))
+  print(conf_tables_all_loops_blindBLAST)
+  print(conf_tables_all_loops_blindBLAST_diff)
+  saveRDS(conf_tables_all_loops_blindBLAST,file=paste(c(result_dir,"/","conf_tables_all_loops_blindBLAST.rds"),collapse=""))
+   saveRDS(conf_tables_all_loops_blindBLAST_diff,file=paste(c(result_dir,"/","conf_tables_all_loops_blindBLAST_diff.rds"),collapse=""))
+  return(summary_info)
+}
+
+
+
+
+cal_GBM_accuracy <-
+  function(all_models_list_by_loop,
+           best_parameters_each_loop ,
+           all_models,
+           data_by_loop_type_list_unduplicated) {
+    conf_tables_all_loops_gbm_diff = list()
+    conf_tables_all_loops_gbm = list()
+    all_gbm_pred_result = list()
+    gbm_folds_sd = list()
+    gbm_errorcount_list = list()
+    gbm_sd_by_loops = list()
+    gbm_accuracy_by_loops = list()
+    gbm_errorcount_sd_list = list()
+    
+    for (loop in names(all_models_list_by_loop)) {
+      paras = best_parameters_each_loop[[loop]]
+      paras = lapply(paras, as.character)
+      best_para = paste(unlist(paras), collapse = "-")
+      file_n = grep(loop, grep(best_para, all_models, value = TRUE), value =
+                      TRUE)[1]
+      model_file = paste(c("./", gbm_models_dir, "/", file_n, sep = ""), collapse =
+                           "")
+      model = readRDS(model_file)
+      model_results_list = lapply(model_file, function(x) {
+        model = readRDS(x)
+        model_result = model$pred
+        re = model_result[, c("pred", "obs", "Resample")]
+        #print(re)
+        names(re) = c("pred", "obs", "Resample")
+        return(re)
+      })
+      
+      if (length(model_results_list) == 1) {
+        model_re = do.call(rbind, model_results_list)
+        model_re_resample = split(model_re, model_re$Resample)
+        resample_chunks = chunk2(1:length(model_re_resample), n_repeats)
+        results_by_repeats = lapply(resample_chunks, function(x) {
+          result = do.call(rbind, model_re_resample[x])
+          
+        })
+        
+      } else{
+        # process irregular cases, overwrite the repeats numbering
+        results_by_repeats = model_results_list
+        
+      }
+      
+      
+      for (l in 1:length(results_by_repeats)) {
+        the_f = results_by_repeats[[l]]
+        the_f$repeats  = rep(l, dim(the_f)[1])
+        results_by_repeats[[l]] = the_f
+      }
+      model_re = do.call(rbind, results_by_repeats)
+      
+      # split the results into 3 repeats
+      
+      gbm_folds_sd[[loop]] = model$results$AccuracySD
+      
+      
+      
+      blindBLAST_unique_clusters = gsub("\\ * ",
+                                        "none",
+                                        unique(data_by_loop_type_list_unduplicated[[loop]][[1]]$cluster_type))
+      
+      returned_l = convert_none(model_re, blindBLAST_unique_clusters, loop)
+      obs = returned_l[[1]]
+      pred = returned_l[[2]]
+      obs = factor(obs, levels = blindBLAST_unique_clusters)
+      pred = factor(pred, levels = blindBLAST_unique_clusters)
+      
+      model_re[, 1] = obs
+      model_re[, 2] = pred
+      model_re_resplit = split(model_re, model_re$repeats)
+      all_gbm_pred_result[[loop]] = model_re
+      
+      accuracies = lapply(model_re_resplit, function(x) {
+        dim(x[x[, 1] == x[, 2], ])[1] / dim(x)[1]
+      })
+      
+      errorcount_sd = lapply(model_re_resplit, function(x) {
+        returned_l = convert_none(x, blindBLAST_unique_clusters, loop)
+        obs = returned_l[[1]]
+        pred = returned_l[[2]]
+        obs = factor(obs, levels = blindBLAST_unique_clusters)
+        pred = factor(pred, levels = blindBLAST_unique_clusters)
+        conf_t = as.data.frame(table(obs, pred))
+        conf_t = conf_t[conf_t$Freq > 0 & conf_t[, 1] != conf_t[, 2], ]
+        conf_t[, 1] = gsub("_", "-", conf_t[, 1])
+        conf_t[, 2] = gsub("_", "-", conf_t[, 2])
+        sum(conf_t$Freq)
+      })
+      
+      errorcount_by_mis_sd = lapply(model_re_resplit, function(x) {
+        print(loop)
+        returned_l = convert_none(x, blindBLAST_unique_clusters, loop)
+        obs = returned_l[[1]]
+        pred = returned_l[[2]]
+        obs = factor(obs, levels = blindBLAST_unique_clusters)
+        pred = factor(pred, levels = blindBLAST_unique_clusters)
+        conf_t = as.data.frame(table(obs, pred))
+        conf_t = conf_t[conf_t$Freq > 0 & conf_t[, 1] != conf_t[, 2], ]
+        conf_t[, 1] = gsub("_", "-", conf_t[, 1])
+        conf_t[, 2] = gsub("_", "-", conf_t[, 2])
+        return(conf_t)
+      })
+      errorcount_by_mis_fr = errorcount_by_mis_sd[[1]]
+      for (x in 2:length(errorcount_by_mis_sd)) {
+        errorcount_by_mis_fr = merge(errorcount_by_mis_fr,
+                                     errorcount_by_mis_sd[[x]],
+                                     by = c("obs", "pred"))
+      }
+      sds = apply(errorcount_by_mis_fr, 1, function(x) {
+        sd(as.numeric(unlist(x[3:(3 + length(errorcount_by_mis_sd) - 1)])))
+      })
+      errorcount_by_mis_fr = cbind(errorcount_by_mis_fr[, 1:2], sds)
+      
+      gbm_errorcount_list[[loop]] = unlist(errorcount_sd)
+      gbm_errorcount_sd_list[[loop]] = sd(unlist(errorcount_sd))
+      print(accuracies)
+      gbm_sd_by_loops[[loop]] = sd(unlist(accuracies))
+      gbm_accuracy_by_loops[[loop]] = mean(unlist(accuracies))
+      conf_t = as.data.frame(table(obs, pred))
+      colnames(conf_t)[1:2] = c("Var1", "Var2")
+      conf_t$Freq = conf_t$Freq / 3   # average by the repeat number
+      
+      conf_tables_all_loops_gbm[[loop]] = conf_t
+      conf_t = conf_t[conf_t$Freq > 0 & conf_t[, 1] != conf_t[, 2], ]
+      colnames(errorcount_by_mis_fr) = c("Var1", "Var2" , "sds")
+      conf_t = merge(conf_t, errorcount_by_mis_fr)
+      conf_t[, 1] = gsub("_", "-", conf_t[, 1])
+      conf_t[, 2] = gsub("_", "-", conf_t[, 2])
+      conf_tables_all_loops_gbm_diff[[loop]] = conf_t
+    }
+    print(conf_tables_all_loops_gbm)
+    saveRDS(conf_tables_all_loops_gbm, file = paste(
+      c(result_dir, "/", "conf_tables_all_loops_gbm.rds"),
+      collapse = ""
+    ))
+    saveRDS(conf_tables_all_loops_gbm_diff, file = paste(
+      c(result_dir, "/", "conf_tables_all_loops_gbm_diff.rds"),
+      collapse = ""
+    ))
+    saveRDS(gbm_sd_by_loops, file = paste(c(result_dir, "/", "gbm_sd_by_loops.rds"), collapse =
+                                            ""))
+    
+    gbm_sd_by_loops
+    gbm_accuracy_by_loops
+    saveRDS(gbm_accuracy_by_loops, file = paste(c(
+      result_dir, "/", "gbm_accuracy_by_loops.rds"
+    ), collapse = ""))
+    saveRDS(gbm_folds_sd, file = paste(c(result_dir, "/", "gbm_folds_sd.rds"), collapse =
+                                         ""))
+    result_f = data.frame(mean = unlist(gbm_accuracy_by_loops),
+                          sd = unlist(gbm_sd_by_loops))
+    return(result_f)
+  }
 
