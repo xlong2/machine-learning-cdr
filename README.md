@@ -51,25 +51,29 @@ For visualizing the accuracies of the two prediction method BLAST and GBM and er
 
 Running the method <br />
 The script trainingGBM.R and trainingBLAST.R can be run independently. The script making_plots.R rely on the outs from the other two scripts therefore should only be run after running the trainingGBM.R and trainingBLAST.R scripts.  <br />
-If the data size is large and grid searching is extensive. The table recording the data to be trained can be splitted so long as all the data needed for generating a single model is in the same table. The grid searching parameters can be further divided into smaller taskes for each running script. For instance, number of trees searching from 100 to 2000 in 200 increments can be separated to 100 to 1000, then 1000 to 2000 for runnning the scripts in different cores. 
-Generally, the prediction accuracy will increase as the n_trees and n_complexity increases up to a point. It is generally suggested to keep the value of n_complexity between 3 and 10. 
+If the data size is large and grid searching is extensive. The table recording the data to be trained can be splitted so long as all the data needed for generating a single model is in the same table. The grid searching parameters can be further divided into smaller taskes for each running script. For instance, number of trees searching from 100 to 2000 in 200 increments can be separated to 100 to 1000, then 1000 to 2000 for runnning the scripts in different cores.   <br/ >
+Generally, the prediction accuracy will increase as the n_trees and n_complexity increases up to a point. It is generally suggested to keep the value of n_complexity between 3 and 10. <br/ >
 
-Specific project:
-The tool is a simplified and beautified version of the method used in my paper in the process of submission: "Non-H3 CDR template selection in antibody modeling through machine learning". The original implementation, data and plots can be found in cdr_classifier_result, cdr_classifier_result/Data_processed and cdr_classifier_result/Plots.
-
-
-Author
-Xiyao Long  xlong2@jhu.edu; bibilong1111@gmail.com
-See also the list of contributors who participated in this project.
-
-License
-This project is licensed under the MIT License - see the LICENSE.md file for details
-
-Acknowledgments
+Specific project: <br/ >
+The tool is a simplified and beautified version of the method used in my paper in the process of submission: "Non-H3 CDR template selection in antibody modeling through machine learning". The original implementation, data and plots can be found in cdr_classifier_result, cdr_classifier_result/Data_processed and cdr_classifier_result/Plots. <br/ >
 
 
-Inspiration
+Author <br/ >
+Xiyao Long  <xlong2@jhu.edu>; <bibilong1111@gmail.com>  <br/ >
+See also the list of contributors who participated in this project. <br/ >
+
+License <br/ >
+This project is licensed under the MIT License - see the LICENSE.md file for details. <br/ >
 
 
 
+Inspiration <br/ >
+The tool is inspired from a review(1) comparing different machine learning methods building sequence based classifiers and concluding the Gradient Boosted Machine gives the best model accuracy. The implementation heavily depend on the GBM implementation of "gbm" and "caret" packages but circumvent some problems when I try to perform extensive grid searching in a clustering environment. This implementation allows parallelization of different datasets by initiating the scripts with multiple data sets and enable specified multiple cores for a single script running instance. And it save the x-repeats-n-folds model estimation for each indiviual set of model parameter which allows results curation from multiple running scripts.<br/ > 
+
+The model training and testing scheme is employed for testing the data from PyIgClassify(2), which is a antibody CDR database with each CDR sequence assigned to a specific structural class within a specific loop type and length. The dataset is chosen for the study in the hope of improving the accuracy of selecting a good structure template for a CDR sequence during the antibody structure modeling method implemented in RosettaAntibody(3). <br/ >
+
+
+1. Jain P., Garibaldi JM., Hirst JD. 2009. Supervised machine learning algorithms for protein structure classification. Computational Biology and Chemistry 33:216-223. DOI: 10.1016/j.compbiolchem.2009.04.004.
+2. Adolf-Bryfogle J., Xu Q., North B. et al. 2015. PyIgClassify: a database of antibody CDR structural classifications. Nucleic Acids Research 43:D432-D438. DOI: 10.1093/nar/gku1106.
+3. Weitzner BD., Kuroda D., Marze N. et al. 2014. Blind prediction performance of RosettaAntibody 3.0: Grafting, relaxation, kinematic loop modeling, and full CDR optimization. Proteins: Structure, Function and Bioinformatics 82:1611-1623. DOI: 10.1002/prot.24534.
 
