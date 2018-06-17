@@ -1,5 +1,5 @@
 # **GBMvsBLAST**  <br />
-This tool implements a training scheme for a classifier predicting the structural class of antibody complementary determining regions. However the training scheme can be used for training a Gradient Boosted Machine classifier for any already clustered sequences data. The implementation allows the comparison of the performance by the GBM method to that of the prediction method using BLAST to find a sequence of the highest bitscore and using its class as the predicted class of query. The tool generate figures enabling visualization of the accuracies and results.. 
+This tool implements a training scheme for a classifier predicting the structural class of any antibody complementary determining region(CDR) based on its sequence. However the training scheme and implementation can also be used for training classifier for any already class annotated sequences data. The implementation allows the comparison of the Gradient Boosted Machine(GBM) method to that of the prediction method using BLAST. The BLAST find a sequence of the highest bitscore and using its class as the predicted class of the query. The tool generate figures enabling visualization of the accuracies and results. 
 
 ## File list:<br />
 Major scripts:<br />
@@ -45,9 +45,9 @@ For visualizing the accuracies of the two prediction method BLAST and GBM, pleas
 ### Example 2:<br />
 This example pass arguments to scripts to specify the number of repeats and folds in the x repeats n folds cross validation scheme, and also the results data directory and the plots directory. The GBM modeling building will encompass grid searching for the number of trees of 5, 10 and 15, also for the complexity of each tree of 3 and 6 branches. The arguments passed to different scripts should not contradict in a single test. For example, the number of repeats and the data saving directory should be the same for all three scripts.  <br />   
 ```
- Rscript trainingGBM.R  --data training_table.tsv  --n_repeats 3 --n_folds 10  --output_dir New_dir --n_trees 5:10:15 --complexity 3:6<br />
- Rscript trainingBLAST.R  --data training_table.tsv  --n_repeats 3 --n_folds 10  --output_dir New_dir <br />
- Rscript making_plots.R --n_repeats 3  --plot_dir  New_plot <br />
+ Rscript trainingGBM.R  --data training_table.tsv  --n_repeats 3 --n_folds 10  --output_dir New_dir --n_trees 5:10:15 --complexity 3:6
+ Rscript trainingBLAST.R  --data training_table.tsv  --n_repeats 3 --n_folds 10  --output_dir New_dir 
+ Rscript making_plots.R --n_repeats 3  --plot_dir  New_plot 
 ```
 "training_table.tsv" should have a "sequence", "class", "sequence_type", "sequence_length". A single class should have at least 8 cases. <br />
 Results will be in specified New_dir and New_plot. <br />
