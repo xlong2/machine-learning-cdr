@@ -37,11 +37,12 @@ initial_message="A program for performing grid search for  Gradient Boosted Mode
 
 parser$add_argument("-o", "--output_dir", type="character",metavar="data_dir",default="Data_dir", help="Directory to place all intermediate data files and results ")
 parser$add_argument("-p","--plot_dir",help="directory to place generated plots", default="Plot_dir")
+parser$add_argument( "-re", "--n_repeats",help=" the number of repeats for performing the blindBLAST prediction ", default=3, type="integer")
 
 args <- parser$parse_args()
 plot_dir = args$plot_dir
 result_dir=args$output_dir
-
+n_repeats = args$n_repeats
 file.sources = list.files(pattern="functions.R")
 sapply(file.sources,source,.GlobalEnv)
 file.sources = list.files(pattern="*function.R")

@@ -69,10 +69,7 @@ print_info<-function(x){
 
 
 current_d = getwd()
-if (!grepl("proline_classifier", current_d)) {
-  setwd("./proline_classifier")
-  
-} 
+
 cur_d=getwd()
 prefix=strsplit(cur_d,"\\/")[[1]][length(strsplit(cur_d,"\\/")[[1]])]
 data(AAPAM30)
@@ -102,16 +99,19 @@ system("mkdir ./tmp")
 save_file_sp("data_by_loop_type_list_unduplicated",result_dir,data_file)
 data_save_f=paste(c(result_dir,data_file,".rds"),collapse="")
 
-for (loop in names(data_by_loop_type_list_unduplicated)[15:19]) {
+for (loop in names(data_by_loop_type_list_unduplicated)[14:18]) {
+  print(loop)
   eta = generate_eta(loop)   # generate learning rate
 
 
   arguments=generate_arguments(loop, total_max_core, complexity, trees, eta, min_node_n)
   mclapply(arguments,gbm_train_script,mc.cores=1)
-  
+  print(c("finished this iteration for ",loop))
 
 }
 
+
+print("finished the entire for loop")
 
 
 # read all models
@@ -152,3 +152,4 @@ save_file("result_table")
 print(result_table)
 
 cal_GBM_accuracy(all_models_list_by_loop,best_parameters_each_loop ,all_models,data_by_loop_type_list_unduplicated)
+

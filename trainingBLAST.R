@@ -65,11 +65,7 @@ args <- parser$parse_args()
 
 
 
-current_d = getwd()
-if (!grepl("proline_classifier", current_d)) {
-  setwd("./proline_classifier")
-  
-} 
+
 cur_d=getwd()
 prefix=strsplit(cur_d,"\\/")[[1]][length(strsplit(cur_d,"\\/")[[1]])]
 data(AAPAM30)
@@ -97,7 +93,7 @@ system("mkdir ./tmp")
 save_file_sp("data_by_loop_type_list_unduplicated",result_dir,data_file)
 data_save_f=paste(c(result_dir,data_file,".rds"),collapse="")
 
-
+system(paste(c("mkdir","./blast/"),collapse=" "))
 
 each_method = "blindblast_just_get_alignment"
 cluster_dis = "north"
@@ -132,7 +128,7 @@ for (loop_type in left_loops) {
 
 
 save_file("ten_foldcv_blindblastlist")
-ten_foldcv_blindblastlist=readRDS('./Data_dir/ten_foldcv_blindblastlist.rds')
+ten_foldcv_blindblastlist=readRDS(paste(c(result_dir,'/ten_foldcv_blindblastlist.rds'),collapse=""))
 
 
 
@@ -162,9 +158,13 @@ results_rbind_allloops=lapply(ten_foldcv_blindblastlist,function(each_r){
   
 })
 
-blindBLAST_summ=cal_blindBLAST_accuracy(ten_foldcv_blindblastlist,n_folds)
-print(blindBLAST_summ)  
-save_file("blindBLAST_summ")
-
 # calculate accuracies for blindBLAST for each repeat
 # calculate the std for accuracies for each repeat
+blindBLAST_summ=cal_blindBLAST_accuracy(ten_foldcv_blindblastlist,n_folds)
+
+save_file("blindBLAST_summ")
+colnames(blindBLAST_summ)=c("accuracy","accuracy_std")
+print(blindBLAST_summ)  
+
+
+

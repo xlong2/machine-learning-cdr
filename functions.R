@@ -351,11 +351,11 @@ get_accuracy_per_fold <- function(each_fold) {
   rmsd_list = data.frame(matrix(nrow = dim(fold_out_cases)[1], ncol = 4))
   system("mkdir ./blast/")
   for (each_ind in 1:dim(fold_out_cases)[1]) {
-    print(each_ind)
+    #print(each_ind)
     #tryCatch({
     seq = fold_out_cases[each_ind, ]
     case_id = seq["identifier"]
-    print(seq)
+    #print(seq)
     found_template = runblast_and_retrive_rmsd(seq, each_fold, member_seqs_pdbs, returned_db[[1]])
     query_template_rmsd = get_rmsd_by_ids(as.character(case_id), found_template[[1]])
     system("mkdir ./garbage ")
@@ -380,9 +380,9 @@ get_accuracy_per_fold <- function(each_fold) {
 get_accuracy_per_fold_overload_final <- function(each_fold) {
   # get reference database
   
-  print(c("the each_fold is ", each_fold))
+  print(c("current fold is ", each_fold))
   #print(folds.list.out)
-  print(each_fold)
+  #print(each_fold)
   member_seqs = sequences[folds.list[[each_fold]], ]
   fold_out_cases = sequences[folds.list.out[[each_fold]], ]
   returned_db = make_reference_database_with_f(member_seqs, each_fold, features) #construct a blast database with the predicted cluster and find the best three hits , extract their rmsd
@@ -419,11 +419,11 @@ get_accuracy_per_fold_overload_final <- function(each_fold) {
 runblast_and_retrive_bitscore <-
   function(seq, each_fold, member_seqs_pdbs, db_name) {
     #the blastdbase is the directory of the database
-    print(the_method)
-    print(loop_type)
-    print(features)
-    print(cluster_dis)
-    print(db_name)
+  #  print(the_method)
+  #  print(loop_type)
+  #  print(features)
+  #  print(cluster_dis)
+  #  print(db_name)
     
     out_file = paste(
       c(
@@ -457,7 +457,7 @@ runblast_and_retrive_bitscore <-
     choice_index = 1
     choices = c("PAM30", "BLOSUM62")
     while (!find_flag) {
-      print("inside while")
+      #print("inside while")
       # remove(hit)
       if (choice_index != 3) {
         sub_choice = choices[[choice_index]]
@@ -708,11 +708,11 @@ get_accuracy_per_fold_overload <-
            features) {
     # get reference database
     
-    print(c("the each_fold is ", each_fold))
-    print(sequences)
-    print(member_seqs)
+    print(c("current fold is ", each_fold))
+    #print(sequences)
+    #print(member_seqs)
     #print(folds.list.out)
-    print(each_fold)
+    #print(each_fold)
     returned_db = make_reference_database_with_f(member_seqs, each_fold, features) #construct a blast database with the predicted cluster and find the best three hits , extract their rmsd
     member_seqs_pdbs = (member_seqs$identifier)
     rmsd_list = data.frame(matrix(nrow = dim(fold_out_cases)[1], ncol = 4))
@@ -733,6 +733,7 @@ get_accuracy_per_fold_overload <-
       )
     }# end of iterating through the fold out cases for a single fold
     
+    system(paste(c("mkdir ", "./garbage/"),collapse=""))
     system(paste(c("mv ", returned_db[[1]], "* " , "./garbage/"), collapse =
                    ""))
     
@@ -1277,9 +1278,9 @@ frame_manipulating_for_ploting <- function(accuracy_list) {
   return(accuracy_gbm_blast_remove_unknow_melt)
 }
 
-frame_for_plot <- function(method_n) {
-  err_frame = error_count_list_with_sd[[method_n]]
-  
+frame_for_plot <- function(err_frame) {
+  #err_frame = error_count_list_with_sd[[method_n]]
+  method_n=err_frame[1,"loop"]
   accuracy_gbm_blast_remove_unknow = err_frame[complete.cases(err_frame),]
   accuracy_gbm_blast_remove_unknow$loop = split_vector_and_replace(rownames(accuracy_gbm_blast_remove_unknow), "_", 1, 1, "-")
   accuracy_gbm_blast_remove_unknow$length = as.numeric(split_vector_and_replace(rownames(accuracy_gbm_blast_remove_unknow), "_", 2, 2, "-"))
@@ -1497,9 +1498,9 @@ convert_none <- function(model_re,
   pred = gsub("_", "-", as.character(model_re$pred))
   
   obs_which = which(!obs %in% blindBLAST_unique_clusters)
-  print(obs_which)
+ # print(obs_which)
   pred_which = which(!pred %in% blindBLAST_unique_clusters)
-  print(pred_which)
+  #print(pred_which)
   pred[pred_which] = rep(paste(c(strsplit(loop, "_")[[1]], "none"), collapse =
                                  "-"), length(pred_which))
   obs[obs_which] = rep(paste(c(strsplit(loop, "_")[[1]], "none"), collapse =
@@ -1571,27 +1572,20 @@ get_conf_from_blindBLAST <-
            repeats,
            loop) {
     print(model_re_com)
-    print("line 1248")
     model_re_com[, 1] = sapply(strsplit(model_re_com[, 1], "\\."), "[[", 1)
     model_re_com[, 2] = sapply(strsplit(model_re_com[, 2], "\\."), "[[", 1)
-    print("line 1251")
     which_1 = which(!model_re_com[, 1] %in% unique_cluster)
-    print("line 1253")
     model_re_com[which_1, 1] = rep(paste(c(strsplit(loop, "_")[[1]], "none"), collapse =
                                            "-"), length(which_1))
-    print("line 1255")
     which_2 = which(!model_re_com[, 2] %in% unique_cluster)
-    print("line 1257")
     model_re_com[which_2, 2] = rep(paste(c(strsplit(loop, "_")[[1]], "none"), collapse =
                                            "-"), length(which_2))
-    print("line 1259")
-    
+
     conf_t = as.data.frame(table(model_re_com[, 1], model_re_com[, 2]))
     conf_t$Freq = conf_t$Freq / repeats
     accuracy_result = sum(conf_t[as.character(conf_t$Var1) == as.character(conf_t$Var2), "Freq"]) /
       sum(conf_t[, "Freq"])
-    print("line 1264")
-    
+
     return(accuracy_result)
   }
 
@@ -2346,8 +2340,14 @@ cal_blindBLAST_accuracy <-
     })
     
     blindBLAST_mean_accu = lapply(blindblast_by_loop_bind, mean)
+    
+    saveRDS(blindblast_by_loop,file=paste(c(result_dir,"/", "blindBLAST_mean_accu.rds"
+    ), collapse = ""))
     saveRDS(blindBLAST_mean_accu, file = paste(c(
       result_dir, "/", "blindBLAST_mean_accu.rds"
+    ), collapse = ""))
+    saveRDS(blindblast_by_loop_bind, file = paste(c(
+      result_dir, "/", "blindblast_by_loop_bind.rds"
     ), collapse = ""))
     blindBLAST_accu_std = lapply(blindblast_by_loop_bind, sd)
     saveRDS(blindBLAST_accu_std, file = paste(c(
@@ -2503,7 +2503,7 @@ cal_GBM_accuracy <-
       
       gbm_errorcount_list[[loop]] = unlist(errorcount_sd)
       gbm_errorcount_sd_list[[loop]] = sd(unlist(errorcount_sd))
-      print(accuracies)
+     # print(accuracies)
       gbm_sd_by_loops[[loop]] = sd(unlist(accuracies))
       gbm_accuracy_by_loops[[loop]] = mean(unlist(accuracies))
       conf_t = as.data.frame(table(obs, pred))
@@ -2519,7 +2519,7 @@ cal_GBM_accuracy <-
       conf_t[, 2] = gsub("_", "-", conf_t[, 2])
       conf_tables_all_loops_gbm_diff[[loop]] = conf_t
     }
-    print(conf_tables_all_loops_gbm)
+   # print(conf_tables_all_loops_gbm)
     saveRDS(conf_tables_all_loops_gbm, file = paste(
       c(result_dir, "/", "conf_tables_all_loops_gbm.rds"),
       collapse = ""
@@ -2531,8 +2531,8 @@ cal_GBM_accuracy <-
     saveRDS(gbm_sd_by_loops, file = paste(c(result_dir, "/", "gbm_sd_by_loops.rds"), collapse =
                                             ""))
     
-    gbm_sd_by_loops
-    gbm_accuracy_by_loops
+   # gbm_sd_by_loops
+  #  gbm_accuracy_by_loops
     saveRDS(gbm_accuracy_by_loops, file = paste(c(
       result_dir, "/", "gbm_accuracy_by_loops.rds"
     ), collapse = ""))
@@ -2543,6 +2543,7 @@ cal_GBM_accuracy <-
     ), collapse = ""))
     result_f = data.frame(mean = unlist(gbm_accuracy_by_loops),
                           sd = unlist(gbm_sd_by_loops))
+    
     return(result_f)
   }
 
@@ -2675,8 +2676,10 @@ process_error_counts <-
     error_count_list_with_sd[[1]] = fr1
     error_count_list_with_sd[[2]] = fr2
     names(error_count_list_with_sd) = c("blindBLAST", "gbm")
-    
-    error_count_list_frame = do.call(rbind, lapply(names(error_count_list_with_sd), frame_for_plot))
+    print(error_count_list_with_sd)
+    error_count_l_inter = lapply(error_count_list_with_sd, frame_for_plot)
+    names(error_count_l_inter)=names(error_count_list_with_sd)
+    error_count_list_frame = do.call(rbind, error_count_l_inter)
     colnames(error_count_list_frame) = c("loop", "value", "sd", "length", "variable")
     
     figure_error_count = plot_figure(error_count_list_frame,
@@ -2685,10 +2688,9 @@ process_error_counts <-
                                      "variable",
                                      "loop",
                                      c(0.9, 0.9))
-    error_count_list_frame$low = error_count_list_frame$value - error_count_list_frame$sd /
-      2
-    error_count_list_frame$high = error_count_list_frame$value + error_count_list_frame$sd /
-      2
+    saveRDS(error_count_list_with_sd,file=paste(c(result_dir,"/","error_count_list_with_sd.rds"),collapse=""))
+    error_count_list_frame$low = error_count_list_frame$value - error_count_list_frame$sd / 2
+    error_count_list_frame$high = error_count_list_frame$value + error_count_list_frame$sd / 2
     return(error_count_list_frame)
   }
 
