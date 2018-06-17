@@ -25,7 +25,7 @@ Dependent R packages:<br />
 
 
 Help <br />
-## By invoking any of the three script "trainingGBM.R", "trainingBLAST.R" and "making_plots.R", it will install all dependent packages and take a tab separated table as input data for training. More options for passing arguments to any of the scripts specific to training and data directory can be specified. Help can be viewed by involking "# Rscript trainingGBM.R  --help"  <br />
+By invoking any of the three script "trainingGBM.R", "trainingBLAST.R" and "making_plots.R", it will install all dependent packages and take a tab separated table as input data for training. More options for passing arguments to any of the scripts specific to training and data directory can be specified. Help can be viewed by involking # Rscript trainingGBM.R  --help  <br />
 
 
 Test examlple <br />
@@ -44,7 +44,7 @@ This example pass arguments to scripts to specify the number of repeats and fold
 # Rscript trainingGBM.R  --data training_table.tsv  --n_repeats 3 --n_folds 10  --output_dir New_dir --n_trees 5:10:15 --complexity 3:6<br />
 # Rscript trainingBLAST.R  --data training_table.tsv  --n_repeats 3 --n_folds 10  --output_dir New_dir <br />
 # Rscript making_plots.R --n_repeats 3  --plot_dir  New_plot <br />
-#data.table should have a "sequence", "class", "sequence_type", "sequence_length". A single class should have at least 8 cases. <br />
+ data.table should have a "sequence", "class", "sequence_type", "sequence_length". A single class should have at least 8 cases. <br />
 Results will be in specified New_dir and New_plot. <br />
 For visualizing the accuracies of the two prediction method BLAST and GBM and error cases comparison, please refer to the resultant figure in New_plot. <br />
 
