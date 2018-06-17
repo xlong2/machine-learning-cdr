@@ -26,7 +26,10 @@ Dependent R packages:<br />
 
 
 ## Help <br />
-By invoking any of the three script "trainingGBM.R", "trainingBLAST.R" and "making_plots.R", it will install all dependent packages and take a tab separated table as input data for training. More options for passing arguments to any of the scripts specific to training and data directory can be specified. Help can be viewed by involking # Rscript trainingGBM.R  --help  <br />
+By invoking any of the three script "trainingGBM.R", "trainingBLAST.R" and "making_plots.R", it will install all dependent packages and take a tab separated table as input data for training. More options for passing arguments to any of the scripts specific to training and data directory can be specified. Help can be viewed by involking 
+``` 
+Rscript trainingGBM.R  --help  
+```
 
 
 ## Test examlple <br />
