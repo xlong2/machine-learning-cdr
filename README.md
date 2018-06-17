@@ -44,9 +44,9 @@ For visualizing the accuracies of the two prediction method BLAST and GBM, pleas
 ### Example 2:<br />
 This example pass arguments to scripts to specify the number of repeats and folds in the x repeats n folds cross validation scheme, and also the results data directory and the plots directory. The GBM modeling building will encompass grid searching for the number of trees of 5, 10 and 15, also for the complexity of each tree of 3 and 6 branches. The arguments passed to different scripts should not contradict in a single test. For example, the number of repeats and the data saving directory should be the same for all three scripts.  <br />   
 ```
-# Rscript trainingGBM.R  --data training_table.tsv  --n_repeats 3 --n_folds 10  --output_dir New_dir --n_trees 5:10:15 --complexity 3:6<br />
-# Rscript trainingBLAST.R  --data training_table.tsv  --n_repeats 3 --n_folds 10  --output_dir New_dir <br />
-# Rscript making_plots.R --n_repeats 3  --plot_dir  New_plot <br />
+ Rscript trainingGBM.R  --data training_table.tsv  --n_repeats 3 --n_folds 10  --output_dir New_dir --n_trees 5:10:15 --complexity 3:6<br />
+ Rscript trainingBLAST.R  --data training_table.tsv  --n_repeats 3 --n_folds 10  --output_dir New_dir <br />
+ Rscript making_plots.R --n_repeats 3  --plot_dir  New_plot <br />
 ```
 "training_table.tsv" should have a "sequence", "class", "sequence_type", "sequence_length". A single class should have at least 8 cases. <br />
 Results will be in specified New_dir and New_plot. <br />
@@ -59,21 +59,21 @@ If the data size is large and grid searching is extensive. The table recording t
 Generally, the prediction accuracy will increase as the n_trees and n_complexity increases up to a point. It is generally suggested to keep the value of n_complexity between 3 and 10. <br />
 
 
-#Specific project: <br />
+## Specific project: <br />
 The tool is a simplified and beautified version of the method used in my paper in the process of submission: "Non-H3 CDR template selection in antibody modeling through machine learning". The original implementation, data and plots can be found in cdr_classifier_result, cdr_classifier_result/Data_processed and cdr_classifier_result/Plots. <br />
 
 
-#Author <br />
+## Author <br />
 Xiyao Long  <xlong2@jhu.edu>; <bibilong1111@gmail.com>  <br />
 See also the list of contributors who participated in this project. <br />
 
 
-#License <br />
+## License <br />
 This project is licensed under the MIT License - see the LICENSE.md file for details. <br />
 
 
 
-#Inspiration <br />
+## Inspiration <br />
 The tool is inspired from a review(1) comparing different machine learning methods building sequence based classifiers and concluding the Gradient Boosted Machine gives the best model accuracy. The implementation heavily depend on the GBM implementation of "gbm" and "caret" packages but circumvent some problems when I try to perform extensive grid searching in a clustering environment. This implementation allows parallelization of different datasets by initiating the scripts with multiple data sets and enable specified multiple cores for a single script running instance. And it save the x-repeats-n-folds model estimation for each indiviual set of model parameter which allows results curation from multiple running scripts.<br /> 
 
 The model training and testing scheme is employed for testing the data from PyIgClassify(2), which is a antibody CDR database with each CDR sequence assigned to a specific structural class within a specific loop type and length. The dataset is chosen for the study in the hope of improving the accuracy of selecting a good structure template for a CDR sequence during the antibody structure modeling method implemented in RosettaAntibody(3). <br />
