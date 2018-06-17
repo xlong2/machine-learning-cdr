@@ -3,7 +3,7 @@ This tool implements a training scheme for a classifier predicting the structura
 
 ## File list:<br />
 Major scripts:<br />
-	trainingGBM.R<br />  
+	trainingGBM.R<br />
 	trainingBLAST.R<br />
 	making_plots.R<br />
 
