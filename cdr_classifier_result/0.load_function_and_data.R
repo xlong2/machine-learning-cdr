@@ -4,10 +4,7 @@
 
 
 direct=getwd()
-if(!grepl("cdr_classifier_result",direct)){
-  setwd("./cdr_classifier_result/")  # enter directory ./cdr_classifier_result
-  
-}
+
 
 # load all the functions
 file.sources = list.files(pattern="functions.R")
@@ -23,7 +20,7 @@ list.of.packages <- c("Matrix", "grid","caret","RWebLogo","MLmetrics","parallel"
                       "scales","e1071")
 local_package_dir="~/R_libs/"
 specify_R_package_diretory=FALSE
-install_and_load_packages(list.of.packages,local_package_dir,specify_R_package_diretory)
+install_and_load_packages(list.of.packages,local_package_dir)
 
 
 cur_d=getwd()
